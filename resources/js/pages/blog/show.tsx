@@ -18,7 +18,11 @@ export default function BlogShow({ post }: Props) {
                         <CardTitle className="text-2xl font-semibold">{post.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="prose dark:prose-invert max-w-none text-sm whitespace-pre-wrap">{post.body}</div>
+                        {post.rendered_body ? (
+                            <div className="prose dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: post.rendered_body }} />
+                        ) : (
+                            <div className="prose dark:prose-invert max-w-none text-sm whitespace-pre-wrap">{post.body}</div>
+                        )}
                     </CardContent>
                 </Card>
             </main>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Inertia\Inertia;
 use Inertia\Response;
+use League\CommonMark\MarkdownConverter;
 
 class ProjectController extends Controller
 {
@@ -19,6 +20,8 @@ class ProjectController extends Controller
 
     public function show(Project $project): Response
     {
+        $converter = app(MarkdownConverter::class);
+        $project->rendered_description = (string) $converter->convert($project->description ?? '');
         return Inertia::render('projects/show', [
             'project' => $project,
         ]);

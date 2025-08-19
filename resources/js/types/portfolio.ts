@@ -37,6 +37,7 @@ export interface Project {
     slug: string;
     summary?: string | null;
     description?: string | null;
+    rendered_description?: string; // HTML from markdown
     tech_stack?: string[] | null;
     image_path?: string | null;
     repo_url?: string | null;
@@ -51,6 +52,7 @@ export interface Post {
     slug: string;
     excerpt?: string | null;
     body: string;
+    rendered_body?: string; // HTML from markdown
     published_at?: string | null;
     created_at: string;
     updated_at: string;

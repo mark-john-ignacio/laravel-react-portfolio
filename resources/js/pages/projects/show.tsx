@@ -20,7 +20,14 @@ export default function ProjectShow({ project }: Props) {
                     <CardContent className="space-y-4">
                         <p className="text-sm text-muted-foreground">{project.summary}</p>
                         {project.tech_stack && <p className="text-xs">Stack: {project.tech_stack.join(', ')}</p>}
-                        <div className="prose dark:prose-invert max-w-none text-sm whitespace-pre-wrap">{project.description}</div>
+                        {project.rendered_description ? (
+                            <div
+                                className="prose dark:prose-invert max-w-none text-sm"
+                                dangerouslySetInnerHTML={{ __html: project.rendered_description }}
+                            />
+                        ) : (
+                            <div className="prose dark:prose-invert max-w-none text-sm whitespace-pre-wrap">{project.description}</div>
+                        )}
                     </CardContent>
                 </Card>
             </main>
