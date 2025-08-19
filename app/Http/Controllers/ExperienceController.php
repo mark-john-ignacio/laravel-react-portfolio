@@ -14,7 +14,7 @@ class ExperienceController extends Controller
     {
         $experiences = Experience::orderBy('order')->get();
 
-        return Inertia::render('experience/index', compact('experiences'));
+        return Inertia::render('experiences/index', compact('experiences'));
     }
 
     public function store(ExperienceRequest $request): RedirectResponse
