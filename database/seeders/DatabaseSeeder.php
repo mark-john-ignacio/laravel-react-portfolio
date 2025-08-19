@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Experience;
+use App\Models\Project;
+use App\Models\Post;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -19,5 +22,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
-    }
+        
+    Experience::factory()->count(3)->create();
+    Project::factory()->count(4)->create();
+    Post::factory()->count(3)->create();
 }
