@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Head } from '@inertiajs/react';
 
 export default function Projects({ projects }: { projects: any[] }) {
     return (
@@ -13,7 +13,9 @@ export default function Projects({ projects }: { projects: any[] }) {
                         <li key={p.id}>
                             <Card className="p-4">
                                 <h3 className="font-medium">{p.title}</h3>
-                                <p className="text-sm text-gray-600">{p.year} — {p.technologies?.join?.(', ')}</p>
+                                <p className="text-sm text-gray-600">
+                                    {p.year} — {p.technologies?.join?.(', ')}
+                                </p>
                                 <p className="mt-2">{p.description}</p>
                                 <div className="mt-3">
                                     {p.url && (

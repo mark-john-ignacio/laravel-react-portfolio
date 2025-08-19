@@ -1,5 +1,5 @@
-import { Head } from '@inertiajs/react';
 import { Card } from '@/components/ui/card';
+import { Head } from '@inertiajs/react';
 
 export default function Experiences({ experiences }: { experiences: any[] }) {
     return (
@@ -12,8 +12,12 @@ export default function Experiences({ experiences }: { experiences: any[] }) {
                         <li key={exp.id}>
                             <Card className="transform transition-transform duration-500 motion-safe:hover:-translate-y-1">
                                 <div className="p-4">
-                                    <h3 className="font-medium">{exp.title} — {exp.company}</h3>
-                                    <div className="text-sm text-gray-600">{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</div>
+                                    <h3 className="font-medium">
+                                        {exp.title} — {exp.company}
+                                    </h3>
+                                    <div className="text-sm text-gray-600">
+                                        {exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}
+                                    </div>
                                     <p className="mt-2">{exp.description}</p>
                                 </div>
                             </Card>
