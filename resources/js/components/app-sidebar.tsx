@@ -4,15 +4,14 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Home, Briefcase, FileText, Mail } from 'lucide-react';
+import { BookOpen, Briefcase, FileText, Folder, LayoutGrid, Mail } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
-    { title: '~', href: '/', icon: Home },
-    { title: 'about', href: '/about', icon: FileText },
-    { title: 'projects', href: '/projects', icon: Briefcase },
-    { title: 'contact', href: '/contact', icon: Mail },
     { title: 'dashboard', href: '/dashboard', icon: LayoutGrid },
+    { title: 'about', href: '/admin/experiences', icon: FileText },
+    { title: 'projects', href: '/admin/projects', icon: Briefcase },
+    { title: 'contact', href: '/contact', icon: Mail },
 ];
 
 const footerNavItems: NavItem[] = [
