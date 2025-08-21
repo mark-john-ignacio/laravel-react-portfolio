@@ -1,5 +1,6 @@
 import { TerminalNavbar } from '@/components/custom/terminal-navbar';
 import { Head } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 
 interface Experience {
     id: number;
@@ -20,8 +21,15 @@ export default function About({ experiences }: { experiences: Experience[] }) {
             <main className="container mx-auto px-4 py-10">
                 <h1 className="mb-6 text-3xl font-bold text-cyan-400">$ timeline --experience</h1>
                 <div className="space-y-6">
-                    {experiences.map((e) => (
-                        <div key={e.id} className="border-l-2 border-green-500/40 pl-4">
+                    {experiences.map((e, i) => (
+                        <motion.div
+                            key={e.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true, amount: 0.2 }}
+                            transition={{ duration: 0.4, delay: i * 0.05 }}
+                            className="border-l-2 border-green-500/40 pl-4"
+                        >
                             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                                 <span className="font-semibold text-purple-400">{e.role}</span>
                                 <span>@ {e.company}</span>
@@ -38,7 +46,7 @@ export default function About({ experiences }: { experiences: Experience[] }) {
                                     ))}
                                 </ul>
                             ) : null}
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </main>

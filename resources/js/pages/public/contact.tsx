@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Head, useForm } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 
 export default function Contact() {
     const { data, setData, post, processing, errors } = useForm({
@@ -22,43 +23,57 @@ export default function Contact() {
             <Head title="~/contact" />
             <TerminalNavbar />
             <main className="container mx-auto px-4 py-10">
-                <h1 className="mb-6 text-3xl font-bold text-purple-400">$ echo \"hello\" {'>'} contact.form</h1>
-                <Card className="max-w-2xl border-purple-500/30 bg-card/60">
-                    <CardContent className="p-6">
-                        <form onSubmit={submit} className="space-y-4">
-                            <div>
-                                <Label htmlFor="name">name</Label>
-                                <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} className="font-mono" />
-                                {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
-                            </div>
-                            <div>
-                                <Label htmlFor="email">email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
-                                    className="font-mono"
-                                />
-                                {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
-                            </div>
-                            <div>
-                                <Label htmlFor="message">message</Label>
-                                <textarea
-                                    id="message"
-                                    className="w-full rounded border bg-background p-2 font-mono"
-                                    rows={6}
-                                    value={data.message}
-                                    onChange={(e) => setData('message', e.target.value)}
-                                />
-                                {errors.message && <p className="mt-1 text-sm text-red-400">{errors.message}</p>}
-                            </div>
-                            <Button type="submit" disabled={processing} className="bg-purple-600 hover:bg-purple-700">
-                                send
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
+                <motion.h1
+                    className="mb-6 text-3xl font-bold text-purple-400"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                >
+                    $ echo \"hello\" {'>'} contact.form
+                </motion.h1>
+                <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.4, delay: 0.05 }}
+                >
+                    <Card className="max-w-2xl border-purple-500/30 bg-card/60">
+                        <CardContent className="p-6">
+                            <form onSubmit={submit} className="space-y-4">
+                                <div>
+                                    <Label htmlFor="name">name</Label>
+                                    <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} className="font-mono" />
+                                    {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
+                                </div>
+                                <div>
+                                    <Label htmlFor="email">email</Label>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        value={data.email}
+                                        onChange={(e) => setData('email', e.target.value)}
+                                        className="font-mono"
+                                    />
+                                    {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
+                                </div>
+                                <div>
+                                    <Label htmlFor="message">message</Label>
+                                    <textarea
+                                        id="message"
+                                        className="w-full rounded border bg-background p-2 font-mono"
+                                        rows={6}
+                                        value={data.message}
+                                        onChange={(e) => setData('message', e.target.value)}
+                                    />
+                                    {errors.message && <p className="mt-1 text-sm text-red-400">{errors.message}</p>}
+                                </div>
+                                <Button type="submit" disabled={processing} className="bg-purple-600 hover:bg-purple-700">
+                                    send
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                </motion.div>
             </main>
         </div>
     );

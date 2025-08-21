@@ -2,6 +2,7 @@ import { TerminalNavbar } from '@/components/custom/terminal-navbar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Head, Link } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 
 interface Project {
     id: number;
@@ -30,11 +31,16 @@ export default function Home({ projects, experiences }: { projects: Project[]; e
             <Head title="~/home" />
             <TerminalNavbar />
             <main className="container mx-auto px-4 py-10">
-                <section className="mb-10">
+                <motion.section className="mb-10" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <div className="mb-4 text-green-400">$ whoami</div>
-                    <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+                    <motion.h1
+                        className="text-3xl font-bold tracking-tight md:text-4xl"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.15 }}
+                    >
                         Mark John Ignacio<span className="text-cyan-400">@portfolio</span>
-                    </h1>
+                    </motion.h1>
                     <p className="mt-3 max-w-2xl text-muted-foreground">
                         Laravel + React engineer crafting clean, fast, and scalable apps. Terminal-first, cyberpunk aesthetics, production-grade
                         quality.
@@ -44,41 +50,50 @@ export default function Home({ projects, experiences }: { projects: Project[]; e
                         <Badge className="border-cyan-500/50 bg-cyan-500/20 text-cyan-400">React</Badge>
                         <Badge className="border-purple-500/50 bg-purple-500/20 text-purple-400">TypeScript</Badge>
                     </div>
-                </section>
+                </motion.section>
 
                 <section className="mb-10">
                     <div className="mb-3 text-green-400">$ ls ./projects --featured</div>
                     <div className="grid gap-4 md:grid-cols-2">
-                        {projects.map((p) => (
-                            <Card key={p.id} className="border-green-500/20 bg-card/60 transition-colors hover:border-green-500/50">
-                                <CardContent className="p-5">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-xl font-semibold">{p.title}</h3>
-                                        <div className="flex gap-2">
-                                            {p.github_url && (
-                                                <a className="text-cyan-400 underline" href={p.github_url} target="_blank">
-                                                    github
-                                                </a>
-                                            )}
-                                            {p.live_url && (
-                                                <a className="text-purple-400 underline" href={p.live_url} target="_blank">
-                                                    live
-                                                </a>
-                                            )}
+                        {projects.map((p, i) => (
+                            <motion.div
+                                key={p.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, amount: 0.2 }}
+                                transition={{ duration: 0.4, delay: i * 0.05 }}
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                <Card className="border-green-500/20 bg-card/60 transition-colors hover:border-green-500/50">
+                                    <CardContent className="p-5">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-xl font-semibold">{p.title}</h3>
+                                            <div className="flex gap-2">
+                                                {p.github_url && (
+                                                    <a className="text-cyan-400 underline" href={p.github_url} target="_blank">
+                                                        github
+                                                    </a>
+                                                )}
+                                                {p.live_url && (
+                                                    <a className="text-purple-400 underline" href={p.live_url} target="_blank">
+                                                        live
+                                                    </a>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <pre className="mt-3 rounded border border-border/40 bg-background/60 p-3 text-sm whitespace-pre-wrap">
-                                        {p.description}
-                                    </pre>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                        {p.technologies?.map((t) => (
-                                            <Badge key={t} variant="outline" className="border-cyan-400/40 text-cyan-400">
-                                                {t}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        <pre className="mt-3 rounded border border-border/40 bg-background/60 p-3 text-sm whitespace-pre-wrap">
+                                            {p.description}
+                                        </pre>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {p.technologies?.map((t) => (
+                                                <Badge key={t} variant="outline" className="border-cyan-400/40 text-cyan-400">
+                                                    {t}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
                         ))}
                     </div>
                     <div className="mt-4">
@@ -91,8 +106,15 @@ export default function Home({ projects, experiences }: { projects: Project[]; e
                 <section>
                     <div className="mb-3 text-green-400">$ cat ./about/experience.log</div>
                     <div className="space-y-3">
-                        {experiences.map((e) => (
-                            <div key={e.id} className="border-l-2 border-purple-500/40 pl-4">
+                        {experiences.map((e, i) => (
+                            <motion.div
+                                key={e.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, amount: 0.2 }}
+                                transition={{ duration: 0.4, delay: i * 0.04 }}
+                                className="border-l-2 border-purple-500/40 pl-4"
+                            >
                                 <div className="flex items-center gap-2">
                                     <span className="text-purple-400">{e.role}</span>
                                     <span className="text-muted-foreground">@ {e.company}</span>
@@ -102,14 +124,14 @@ export default function Home({ projects, experiences }: { projects: Project[]; e
                                 </div>
                                 {e.highlights?.length ? (
                                     <ul className="mt-2 list-disc pl-6 marker:text-green-400/70">
-                                        {e.highlights.map((h, i) => (
-                                            <li key={i} className="text-sm">
+                                        {e.highlights.map((h, i2) => (
+                                            <li key={i2} className="text-sm">
                                                 {h}
                                             </li>
                                         ))}
                                     </ul>
                                 ) : null}
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 </section>
