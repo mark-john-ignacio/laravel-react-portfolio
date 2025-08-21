@@ -1,3 +1,4 @@
+import { AppearanceToggle } from '@/components/custom/appearance-toggle';
 import { Link } from '@inertiajs/react';
 
 export function TerminalNavbar() {
@@ -20,6 +21,7 @@ export function TerminalNavbar() {
                     <Link href={route().has('dashboard') ? route('dashboard') : '/dashboard'} className="hover:text-purple-400">
                         admin
                     </Link>
+                    <AppearanceToggle />
                 </div>
             </div>
         </nav>
