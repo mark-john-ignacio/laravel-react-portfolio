@@ -139,3 +139,21 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Terminal neon accent helpers */
+:root, .dark {
+    --neon-green: oklch(0.78 0.17 150);
+    --neon-cyan: oklch(0.83 0.12 200);
+    --neon-purple: oklch(0.75 0.12 320);
+}
+
+.text-neon-green { color: var(--neon-green); }
+.text-neon-cyan { color: var(--neon-cyan); }
+.text-neon-purple { color: var(--neon-purple); }
+.border-neon-green\/20 { border-color: color-mix(in oklch, var(--neon-green) 20%, transparent); }
+.border-neon-green\/50 { border-color: color-mix(in oklch, var(--neon-green) 50%, transparent); }
+.border-neon-cyan\/40 { border-color: color-mix(in oklch, var(--neon-cyan) 40%, transparent); }
+.border-neon-purple\/40 { border-color: color-mix(in oklch, var(--neon-purple) 40%, transparent); }
+.bg-neon-green\/20 { background-color: color-mix(in oklch, var(--neon-green) 20%, transparent); }
+.bg-neon-cyan\/20 { background-color: color-mix(in oklch, var(--neon-cyan) 20%, transparent); }
+.bg-neon-purple\/20 { background-color: color-mix(in oklch, var(--neon-purple) 20%, transparent); }
