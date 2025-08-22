@@ -23,14 +23,7 @@ export default function Contact() {
             <Head title="~/contact" />
             <TerminalNavbar />
             <main className="container mx-auto px-4 py-10">
-                <motion.h1
-                    className="mb-6 text-3xl font-bold text-purple-400"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                >
-                    $ echo \"hello\" {'>'} contact.form
-                </motion.h1>
+                <h1 className="mb-6 text-3xl font-bold text-purple-400">$ echo \"hello\" {'>'} contact.form</h1>
                 <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     whileInView={{ opacity: 1, y: 0 }}
