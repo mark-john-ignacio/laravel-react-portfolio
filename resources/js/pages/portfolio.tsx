@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
 import { TechnologyBadge } from '@/components/technology-badge';
+import React, { Suspense, lazy } from 'react';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 // Section ids for navigation
@@ -85,7 +86,9 @@ export default function PortfolioPage() {
           <HeroSection motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }} />
           <AboutSection />
           <ExperienceSection />
-          <ProjectsSection />
+          <Suspense fallback={<div className="px-6 py-24 md:px-24" aria-busy="true">Loading projects…</div>}>
+            <LazyProjects />
+          </Suspense>
           <ContactSection />
           <Footer />
         </main>
@@ -479,165 +482,7 @@ function ExperienceSection() {
   );
 }
 
-interface ProjectItem {
-  title: string;
-  description: string;
-  tech: string[];
-  links?: { github?: string; demo?: string };
-  featured?: boolean;
-}
-
-const projects: ProjectItem[] = [
-  {
-    title: 'AWS Cloud Resume Challenge',
-    description: 'A serverless resume built with AWS Lambda, API Gateway, DynamoDB, and CloudFront.',
-    tech: ['AWS', 'Lambda', 'API Gateway', 'DynamoDB', 'CloudFront'],
-    featured: true,
-    links: { github: 'https://github.com/mark-john-ignacio', demo: '#' },
-  },
-  {
-    title: 'Online Thesis Archiving System',
-    description: 'A secure platform for managing and accessing academic research documents.',
-    tech: ['PHP', 'MySQL', 'Tailwind'],
-    featured: true,
-    links: { github: '#', demo: '#' },
-  },
-  {
-    title: 'HRWEB Financial Applications',
-    description: 'Modern financial applications built with Laravel and React improving stability and UX.',
-    tech: ['Laravel', 'React', 'Tailwind', 'Inertia.js'],
-    featured: true,
-    links: { github: '#', demo: '#' },
-  },
-  {
-    title: 'Portfolio Website',
-    description: 'This portfolio project showcasing my work and experience with refined UI/UX.',
-    tech: ['Laravel', 'React', 'TypeScript', 'Framer Motion'],
-    links: { github: 'https://github.com/mark-john-ignacio/laravel-react-portfolio', demo: '#' },
-  },
-  // Additional non-featured sample items for grid expansion
-  {
-    title: 'Infrastructure Scripts',
-    description: 'Automation scripts for provisioning and monitoring cloud resources.',
-    tech: ['AWS', 'Python', 'Bash'],
-  },
-  {
-    title: 'Design System Playground',
-    description: 'Exploration of component tokens & accessibility patterns.',
-    tech: ['React', 'TypeScript', 'Storybook'],
-  },
-  {
-    title: 'Real-time Dashboard Demo',
-    description: 'Event-driven updates demonstrating WebSocket streaming.',
-    tech: ['Laravel', 'Pusher', 'React'],
-  },
-];
-
-function ProjectsSection() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
-  const [showAll, setShowAll] = useState(false);
-  return (
-    <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby="work">
-      <SectionHeading id="work" index={3}>
-        Some Things I've Built
-      </SectionHeading>
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="space-y-24"
-      >
-        {projects
-          .filter((p) => p.featured)
-          .map((p, idx) => (
-            <motion.div
-              key={p.title}
-              initial={{ opacity: 0, y: 40 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: idx * 0.15 + 0.2, duration: 0.6 }}
-              className="grid items-center gap-10 md:grid-cols-2"
-            >
-              <div className={`order-2 ${idx % 2 === 0 ? 'md:order-1' : 'md:order-2'} relative group`}> 
-                <div className="aspect-video w-full rounded bg-[#112240] ring-1 ring-[#64ffda]/30" />
-                <div className="pointer-events-none absolute inset-0 rounded border border-[#64ffda]/30 opacity-0 transition group-hover:opacity-100" />
-              </div>
-              <div className={`order-1 ${idx % 2 === 0 ? 'md:order-2' : 'md:order-1'} relative`}> 
-                <p className="mb-2 font-mono text-sm text-[#64ffda]">Featured Project</p>
-                <h3 className="mb-4 text-2xl font-semibold text-[#e6f1ff]">{p.title}</h3>
-                <div className="mb-4 rounded bg-[#112240] p-6 text-[#8892b0] shadow-lg ring-1 ring-[#1d2d50]">
-                  {p.description}
-                </div>
-                <ul className="mb-4 flex flex-wrap gap-4 font-mono text-xs text-[#8892b0]">
-                  {p.tech.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          ))}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects
-            .filter((p) => !p.featured)
-            .slice(0, showAll ? undefined : 3)
-            .map((p, idx) => (
-              <motion.div
-                key={p.title}
-                initial={{ opacity: 0, y: 24 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
-                className="group relative flex flex-col rounded-lg bg-[#112240] p-6 ring-1 ring-[#233554] hover:-translate-y-1 hover:ring-[#64ffda] transition"
-              >
-                <div className="mb-2 flex items-start justify-between">
-                  <h4 className="text-lg font-semibold text-[#e6f1ff] group-hover:text-[#64ffda] transition-colors">
-                    {p.title}
-                  </h4>
-                  <div className="flex gap-3 text-[#8892b0]">
-                    {p.links?.github && (
-                      <a
-                        href={p.links.github}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="hover:text-[#64ffda]"
-                        aria-label="GitHub repository"
-                      >
-                        GH
-                      </a>
-                    )}
-                    {p.links?.demo && (
-                      <a
-                        href={p.links.demo}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="hover:text-[#64ffda]"
-                        aria-label="Live demo"
-                      >
-                        ↗
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <p className="mb-4 text-sm text-[#8892b0] flex-1">{p.description}</p>
-                <ul className="flex flex-wrap gap-3 font-mono text-[11px] text-[#8892b0]">
-                  {p.tech.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-        </div>
-        <div className="mt-10 text-center">
-          <button
-            onClick={() => setShowAll((s) => !s)}
-            className="rounded border border-[#64ffda] px-6 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
-          >
-            {showAll ? 'Show Less' : 'Show More'}
-          </button>
-        </div>
-      </motion.div>
-    </section>
-  );
-}
+const LazyProjects = lazy(() => import('../sections/ProjectsSection').then(m => ({ default: m.ProjectsSection })));
 
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
