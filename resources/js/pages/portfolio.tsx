@@ -81,8 +81,8 @@ export default function PortfolioPage() {
         {!reduceMotion && (
           <motion.div aria-hidden="true" style={{ scaleX }} className="fixed left-0 top-0 z-50 h-1 w-full origin-left bg-[#64ffda]" />
         )}
-        <Sidebar theme={theme} onToggleTheme={toggleTheme} />
-        <main id="main" className="pl-0 md:pl-64 transition-[padding]" role="main">
+        <Header theme={theme} onToggleTheme={toggleTheme} />
+        <main id="main" className="pt-20" role="main">
           <HeroSection motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }} />
           <AboutSection />
           <ExperienceSection />
@@ -96,10 +96,10 @@ export default function PortfolioPage() {
     </>
   );
 }
-
-function Sidebar({ theme, onToggleTheme }: { theme: string; onToggleTheme: () => void }) {
+function Header({ theme, onToggleTheme }: { theme: string; onToggleTheme: () => void }) {
   const active = useScrollSpy(sections.map((s) => s.id));
   const [open, setOpen] = useState(false);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
@@ -110,73 +110,55 @@ function Sidebar({ theme, onToggleTheme }: { theme: string; onToggleTheme: () =>
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col justify-between p-8 md:flex">
-        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
-          <div className="text-[#64ffda] font-mono text-sm mb-4">MJ</div>
-          <nav className="space-y-3" aria-label="Primary navigation">
-            {sections.map((s, i) => {
-              const isActive = active === s.id;
-              return (
-                <a
-                  key={s.id}
-                  href={`#${s.id}`}
-                  className={`group flex items-center gap-2 font-mono text-xs tracking-wide transition-colors ${
-                    isActive ? 'text-[#64ffda]' : 'text-[#8892b0] hover:text-[#64ffda]'
-                  }`}
-                >
-                  <span className="text-[#64ffda]">{String(i + 1).padStart(2, '0')}.</span>
-                  <span className={`relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-[#64ffda] after:transition-all ${isActive ? 'after:w-full' : 'after:w-0 group-hover:after:w-full'}`}>
-                    {s.label}
-                  </span>
-                </a>
-              );
-            })}
-          </nav>
-          <div className="mt-6 flex flex-col gap-3">
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
-            >
-              Resume
-            </a>
-            <button
-              onClick={onToggleTheme}
-              className="inline-block rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </button>
-          </div>
-        </motion.div>
-        <motion.ul
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="flex flex-col gap-5 text-[#8892b0]"
-        >
-          <li>
-            <a href="https://github.com/mark-john-ignacio" target="_blank" rel="noreferrer" className="hover:text-[#64ffda] transition-colors">GitHub</a>
-          </li>
-          <li>
-            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="hover:text-[#64ffda] transition-colors">LinkedIn</a>
-          </li>
-          <li>
-            <a href="mailto:Markme44.mm@gmail.com" className="hover:text-[#64ffda] transition-colors">Email</a>
-          </li>
-        </motion.ul>
-      </aside>
-
-      {/* Mobile nav trigger */}
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Open navigation"
-        className="fixed top-5 right-5 z-50 rounded border border-[#64ffda] px-3 py-2 font-mono text-xs text-[#64ffda] md:hidden"
+      <motion.header
+        initial={{ y: -40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 md:px-12 py-4 backdrop-blur bg-[#0a192f]/80 border-b border-[#112240]"
       >
-        Menu
-      </button>
+        <div className="text-[#64ffda] font-mono text-sm tracking-wider">MJ</div>
+        <nav aria-label="Primary navigation" className="hidden md:flex items-center gap-8">
+          {sections.map((s, i) => {
+            const isActive = active === s.id;
+            return (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className={`group font-mono text-[13px] tracking-wide transition-colors ${
+                  isActive ? 'text-[#64ffda]' : 'text-[#8892b0] hover:text-[#64ffda]'
+                }`}
+              >
+                <span className="text-[#64ffda] mr-1">{String(i + 1).padStart(2, '0')}.</span>
+                <span className="relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-[#64ffda] after:transition-all after:w-0 group-hover:after:w-full" aria-current={isActive ? 'true' : undefined}>
+                  {s.label}
+                </span>
+              </a>
+            );
+          })}
+          <a
+            href="/resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+          >
+            Resume
+          </a>
+          <button
+            onClick={onToggleTheme}
+            className="rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? 'Light' : 'Dark'}
+          </button>
+        </nav>
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open navigation"
+          className="md:hidden rounded border border-[#64ffda] px-3 py-2 font-mono text-xs text-[#64ffda]"
+        >
+          Menu
+        </button>
+      </motion.header>
       {open && (
         <div className="fixed inset-0 z-50 bg-[#0a192f]/95 backdrop-blur-sm md:hidden">
           <button
@@ -186,7 +168,7 @@ function Sidebar({ theme, onToggleTheme }: { theme: string; onToggleTheme: () =>
           >
             Close
           </button>
-          <nav className="mt-32 flex flex-col items-center gap-6">
+          <nav className="mt-32 flex flex-col items-center gap-6" aria-label="Mobile navigation">
             {sections.map((s, i) => {
               const isActive = active === s.id;
               return (
@@ -237,7 +219,7 @@ function SectionHeading({ index, children, id }: { index: number; children: Reac
   return (
     <h2
       id={id}
-      className="group mb-8 flex items-center gap-4 font-semibold tracking-tight text-[#e6f1ff] text-2xl md:text-3xl"
+  className="group mb-8 flex items-center gap-4 font-semibold tracking-tight text-[#e6f1ff] text-2xl md:text-3xl scroll-mt-24"
     >
       <span className="font-mono text-base text-[#64ffda]">{String(index).padStart(2, '0')}.</span>
       {children}
