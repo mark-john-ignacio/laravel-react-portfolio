@@ -95,6 +95,29 @@ function PortfolioPage() {
 function Header() {
   const active = useScrollSpy(sections.map((s) => s.id));
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastScroll = useRef(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const current = window.scrollY;
+      const delta = current - lastScroll.current;
+      // Show if near top
+      if (current < 80) {
+        setHidden(false);
+      } else {
+        if (delta > 6 && !open) {
+          // scrolling down
+            setHidden(true);
+        } else if (delta < -6) {
+          // scrolling up
+          setHidden(false);
+        }
+      }
+      lastScroll.current = current;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [open]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -108,8 +131,8 @@ function Header() {
     <>
       <motion.header
         initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        animate={{ y: hidden ? -80 : 0, opacity: hidden ? 0 : 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 md:px-12 py-4 backdrop-blur bg-[#0a192f]/80 border-b border-[#112240]"
       >
         <div className="text-[#64ffda] font-mono text-sm tracking-wider">MJ</div>
