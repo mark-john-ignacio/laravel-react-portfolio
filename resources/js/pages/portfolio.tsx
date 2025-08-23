@@ -1,8 +1,9 @@
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll, useSpring } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
 import { TechnologyBadge } from '@/components/technology-badge';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 // Section ids for navigation
 const sections = [
@@ -23,22 +24,65 @@ const fadeUp = {
 };
 
 export default function PortfolioPage() {
+  const reduceMotion = typeof window !== 'undefined' ? usePrefersReducedMotion() : false;
+  // Variants adjusted based on reduced motion
+  const adaptiveContainer = reduceMotion ? {} : containerVariants;
+  const adaptiveFadeUp = reduceMotion ? { hidden: { opacity: 0 }, show: { opacity: 1 } } : fadeUp;
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
+  const [theme, setTheme] = useState<string>(() => (typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark'));
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem('theme', theme);
+    }
+  }, [theme]);
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+  const rootClasses = theme === 'light'
+    ? 'bg-white text-slate-800'
+    : 'bg-[#0a192f] text-[#ccd6f6]';
   return (
     <>
-      <Head title="Portfolio">
+      <Head title="Mark John Ignacio | Portfolio">
+        <meta name="description" content="Mark John Ignacio – Laravel & React developer building performant, accessible, and elegant web applications." />
+        <meta name="author" content="Mark John Ignacio" />
+        <meta name="theme-color" content="#0a192f" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Mark John Ignacio | Portfolio" />
+        <meta property="og:description" content="Laravel & React developer building performant, accessible, and elegant web applications." />
+        <meta property="og:url" content="https://example.com" />
+        <meta property="og:image" content="/images/og-cover.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Mark John Ignacio | Portfolio" />
+        <meta name="twitter:description" content="Laravel & React developer building performant, accessible, and elegant web applications." />
+        <meta name="twitter:image" content="/images/og-cover.png" />
+        <link rel="canonical" href="https://example.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+        <script type="application/ld+json">{`
+          {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "Mark John Ignacio",
+            "url": "https://example.com",
+            "email": "mailto:Markme44.mm@gmail.com",
+            "jobTitle": "Full Stack Developer",
+            "sameAs": [
+              "https://github.com/mark-john-ignacio",
+              "https://www.linkedin.com"
+            ],
+            "knowsAbout": ["Laravel", "React", "TypeScript", "Tailwind CSS", "AWS", "PHP"]
+          }
+        `}</script>
       </Head>
-      <div className="min-h-screen bg-[#0a192f] text-[#ccd6f6] font-inter selection:bg-[#64ffda]/20">
-        <a
-          href="#about"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-[#112240] focus:px-4 focus:py-2 focus:text-sm focus:outline-none focus:ring-2 focus:ring-[#64ffda]/60"
-        >
-          Skip to content
-        </a>
-        <Sidebar />
-        <main className="pl-0 md:pl-64 transition-[padding]">
-          <HeroSection />
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] rounded bg-[#64ffda] px-4 py-2 font-mono text-xs text-[#0a192f]">Skip to content</a>
+      <div className={`min-h-screen font-inter selection:bg-[#64ffda]/20 ${rootClasses}`}>
+        {!reduceMotion && (
+          <motion.div aria-hidden="true" style={{ scaleX }} className="fixed left-0 top-0 z-50 h-1 w-full origin-left bg-[#64ffda]" />
+        )}
+        <Sidebar theme={theme} onToggleTheme={toggleTheme} />
+        <main id="main" className="pl-0 md:pl-64 transition-[padding]" role="main">
+          <HeroSection motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }} />
           <AboutSection />
           <ExperienceSection />
           <ProjectsSection />
@@ -50,7 +94,7 @@ export default function PortfolioPage() {
   );
 }
 
-function Sidebar() {
+function Sidebar({ theme, onToggleTheme }: { theme: string; onToggleTheme: () => void }) {
   const active = useScrollSpy(sections.map((s) => s.id));
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -67,7 +111,7 @@ function Sidebar() {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col justify-between p-8 md:flex">
         <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
           <div className="text-[#64ffda] font-mono text-sm mb-4">MJ</div>
-          <nav className="space-y-3">
+          <nav className="space-y-3" aria-label="Primary navigation">
             {sections.map((s, i) => {
               const isActive = active === s.id;
               return (
@@ -86,6 +130,23 @@ function Sidebar() {
               );
             })}
           </nav>
+          <div className="mt-6 flex flex-col gap-3">
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+            >
+              Resume
+            </a>
+            <button
+              onClick={onToggleTheme}
+              className="inline-block rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </button>
+          </div>
         </motion.div>
         <motion.ul
           initial={{ opacity: 0, y: 40 }}
@@ -140,10 +201,28 @@ function Sidebar() {
               );
             })}
           </nav>
-          <div className="mt-16 flex justify-center gap-8 text-[#8892b0]">
-            <a href="https://github.com/mark-john-ignacio" target="_blank" rel="noreferrer" className="hover:text-[#64ffda]">GitHub</a>
-            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="hover:text-[#64ffda]">LinkedIn</a>
-            <a href="mailto:Markme44.mm@gmail.com" className="hover:text-[#64ffda]">Email</a>
+          <div className="mt-16 flex flex-col items-center gap-6 text-[#8892b0]">
+            <div className="flex gap-8">
+              <a href="https://github.com/mark-john-ignacio" target="_blank" rel="noreferrer" className="hover:text-[#64ffda]">GitHub</a>
+              <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="hover:text-[#64ffda]">LinkedIn</a>
+              <a href="mailto:Markme44.mm@gmail.com" className="hover:text-[#64ffda]">Email</a>
+            </div>
+            <div className="flex gap-4">
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10"
+              >
+                Resume
+              </a>
+              <button
+                onClick={onToggleTheme}
+                className="rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10"
+              >
+                {theme === 'dark' ? 'Light' : 'Dark'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -164,28 +243,28 @@ function SectionHeading({ index, children, id }: { index: number; children: Reac
   );
 }
 
-function HeroSection() {
+function HeroSection({ motionVariants }: { motionVariants: { container: any; item: any } }) {
   return (
     <section className="flex min-h-[90vh] flex-col justify-center px-6 pt-24 md:px-24" aria-label="Hero">
-      <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-3xl">
-        <motion.p variants={fadeUp} className="mb-4 font-mono text-sm text-[#64ffda]">
+      <motion.div variants={motionVariants.container} initial="hidden" animate="show" className="max-w-3xl">
+        <motion.p variants={motionVariants.item} className="mb-4 font-mono text-sm text-[#64ffda]">
           Hi, my name is
         </motion.p>
         <motion.h1
-          variants={fadeUp}
+          variants={motionVariants.item}
           className="mb-2 text-4xl font-extrabold leading-tight text-[#e6f1ff] sm:text-5xl md:text-6xl"
         >
           Mark John Ignacio.
         </motion.h1>
-        <motion.h2 variants={fadeUp} className="mb-6 text-3xl font-semibold text-[#8892b0] sm:text-4xl">
+        <motion.h2 variants={motionVariants.item} className="mb-6 text-3xl font-semibold text-[#8892b0] sm:text-4xl">
           I build things for the web.
         </motion.h2>
-        <motion.p variants={fadeUp} className="mb-10 max-w-xl text-[#8892b0]">
+        <motion.p variants={motionVariants.item} className="mb-10 max-w-xl text-[#8892b0]">
           I'm a Laravel + React developer focused on crafting performant, accessible, and visually polished web
           applications. I love bridging elegant frontend experiences with robust backend architecture—shipping features
           that are maintainable and delightful to use.
         </motion.p>
-        <motion.div variants={fadeUp}>
+        <motion.div variants={motionVariants.item}>
           <a
             href="#work"
             className="inline-block rounded border border-[#64ffda] px-6 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
