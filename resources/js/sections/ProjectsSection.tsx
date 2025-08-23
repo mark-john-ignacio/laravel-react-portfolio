@@ -1,85 +1,9 @@
 import React, { useRef, useState, useMemo } from 'react';
-import { useInView, motion, AnimatePresence } from 'framer-motion';
-import * as Dialog from '@radix-ui/react-dialog';
+import { useInView, motion } from 'framer-motion';
 import { Reveal, RevealGroup } from '@/components/reveal';
-
-interface ProjectItem {
-  id: string;
-  title: string;
-  description: string;
-  longDescription?: string;
-  tech: string[];
-  links?: { github?: string; demo?: string };
-  featured?: boolean;
-  image?: string; // path to image
-}
-
-const baseProjects: ProjectItem[] = [
-  {
-    id: 'cloud-resume',
-    title: 'AWS Cloud Resume Challenge',
-    description: 'A serverless resume built with AWS Lambda, API Gateway, DynamoDB, and CloudFront.',
-    longDescription:
-      'Full infrastructure defined as code. Leveraged AWS services for a low-cost, highly available personal resume with visitor counter and CI/CD pipeline.',
-    tech: ['AWS', 'Lambda', 'API Gateway', 'DynamoDB', 'CloudFront'],
-    featured: true,
-    links: { github: 'https://github.com/mark-john-ignacio', demo: '#' },
-    image: '/images/placeholders/feature-1.svg',
-  },
-  {
-    id: 'thesis-archiver',
-    title: 'Online Thesis Archiving System',
-    description: 'A secure platform for managing and accessing academic research documents.',
-    longDescription:
-      'Implements role-based access, full text search, versioning, and audit trails to streamline academic record management and retrieval.',
-    tech: ['PHP', 'MySQL', 'Tailwind'],
-    featured: true,
-    links: { github: '#', demo: '#' },
-    image: '/images/placeholders/feature-2.svg',
-  },
-  {
-    id: 'financial-apps',
-    title: 'HRWEB Financial Applications',
-    description: 'Modern financial applications built with Laravel and React improving stability and UX.',
-    longDescription:
-      'Refactored legacy modules into modular services, introduced real-time dashboards, and improved data integrity with robust validation layers.',
-    tech: ['Laravel', 'React', 'Tailwind', 'Inertia.js'],
-    featured: true,
-    links: { github: '#', demo: '#' },
-    image: '/images/placeholders/feature-3.svg',
-  },
-  {
-    id: 'portfolio',
-    title: 'Portfolio Website',
-    description: 'This portfolio project showcasing my work and experience with refined UI/UX.',
-    longDescription:
-      'Built with Laravel + Inertia + React + TypeScript. Focus on accessibility, performance, and motion design patterns inspired by top personal sites.',
-    tech: ['Laravel', 'React', 'TypeScript', 'Framer Motion'],
-    links: { github: 'https://github.com/mark-john-ignacio/laravel-react-portfolio', demo: '#' },
-    image: '/images/placeholders/grid-1.svg',
-  },
-  {
-    id: 'infra-scripts',
-    title: 'Infrastructure Scripts',
-    description: 'Automation scripts for provisioning and monitoring cloud resources.',
-    tech: ['AWS', 'Python', 'Bash'],
-    image: '/images/placeholders/grid-2.svg',
-  },
-  {
-    id: 'design-system',
-    title: 'Design System Playground',
-    description: 'Exploration of component tokens & accessibility patterns.',
-    tech: ['React', 'TypeScript', 'Storybook'],
-    image: '/images/placeholders/grid-3.svg',
-  },
-  {
-    id: 'realtime-dashboard',
-    title: 'Real-time Dashboard Demo',
-    description: 'Event-driven updates demonstrating WebSocket streaming.',
-    tech: ['Laravel', 'Pusher', 'React'],
-    image: '/images/placeholders/grid-4.svg',
-  },
-];
+import { PROJECTS, ProjectItem } from '@/data/projects';
+import { Section, SectionHeading } from '@/components/Section';
+import { ProjectDialog } from '@/components/ProjectDialog';
 
 export interface ProjectsSectionProps {
   id?: string;
@@ -87,19 +11,18 @@ export interface ProjectsSectionProps {
 }
 
 export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSectionProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLElement | null>(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
   const [showAll, setShowAll] = useState(false);
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null);
-  const featured = useMemo(() => baseProjects.filter((p) => p.featured), []);
-  const secondary = useMemo(() => baseProjects.filter((p) => !p.featured), []);
+  const featured = useMemo(() => PROJECTS.filter((p) => p.featured), []);
+  const secondary = useMemo(() => PROJECTS.filter((p) => !p.featured), []);
 
   return (
-  <section ref={ref} className="px-12 py-24 md:px-48 xl:px-64" aria-labelledby={id}>
-      <h2 id={id} className="group mb-8 flex items-center gap-4 font-semibold tracking-tight text-[#e6f1ff] text-2xl md:text-3xl">
-        <span className="font-mono text-base text-[#64ffda]">{String(headingIndex).padStart(2, '0')}.</span> Some Things I've Built
-        <span className="h-px flex-1 bg-[#233554] group-hover:bg-[#64ffda]/50 transition-colors" />
-      </h2>
+    <Section as="section" ref={ref} aria-labelledby={id} id={id} className="pt-24">
+      <SectionHeading index={headingIndex} id={`${id}-heading`}>
+        Some Things I've Built
+      </SectionHeading>
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -234,73 +157,8 @@ export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSecti
         </div>
       </motion.div>
       <ProjectDialog project={activeProject} onOpenChange={(open) => !open && setActiveProject(null)} />
-    </section>
+    </Section>
   );
 }
 
-interface ProjectDialogProps {
-  project: ProjectItem | null;
-  onOpenChange: (open: boolean) => void;
-}
-
-function ProjectDialog({ project, onOpenChange }: ProjectDialogProps) {
-  return (
-    <Dialog.Root open={!!project} onOpenChange={onOpenChange}>
-      <AnimatePresence>
-        {project && (
-          <Dialog.Portal forceMount>
-            <motion.div
-              className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-            <Dialog.Overlay className="fixed inset-0" />
-            <div className="fixed inset-0 z-[210] overflow-y-auto p-6 md:p-10">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                transition={{ duration: 0.25 }}
-                className="mx-auto max-w-2xl rounded-lg bg-[#112240] p-6 shadow-xl ring-1 ring-[#1d2d50]"
-              >
-                <div className="mb-4 flex items-start justify-between gap-4">
-                  <Dialog.Title className="text-xl font-semibold text-[#e6f1ff]">{project.title}</Dialog.Title>
-                  <Dialog.Close asChild>
-                    <button
-                      className="rounded border border-[#64ffda] px-3 py-1 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
-                      aria-label="Close project details"
-                    >
-                      Close
-                    </button>
-                  </Dialog.Close>
-                </div>
-                <div className="mb-4 aspect-video w-full overflow-hidden rounded bg-[#0f223d]">
-                  <img src={project.image} alt={project.title} loading="lazy" className="h-full w-full object-cover" />
-                </div>
-                <p className="mb-4 text-[#8892b0] text-sm leading-relaxed">{project.longDescription || project.description}</p>
-                <ul className="mb-6 flex flex-wrap gap-3 font-mono text-[11px] text-[#8892b0]">
-                  {project.tech.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-                <div className="flex flex-wrap gap-4 text-sm font-mono">
-                  {project.links?.github && (
-                    <a href={project.links.github} target="_blank" rel="noreferrer" className="text-[#64ffda] hover:underline">
-                      GitHub
-                    </a>
-                  )}
-                  {project.links?.demo && (
-                    <a href={project.links.demo} target="_blank" rel="noreferrer" className="text-[#64ffda] hover:underline">
-                      Live Demo
-                    </a>
-                  )}
-                </div>
-              </motion.div>
-            </div>
-          </Dialog.Portal>
-        )}
-      </AnimatePresence>
-    </Dialog.Root>
-  );
-}
+// ProjectDialog extracted to components/ProjectDialog.tsx

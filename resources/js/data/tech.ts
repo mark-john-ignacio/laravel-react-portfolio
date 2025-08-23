@@ -1,0 +1,15 @@
+export const TECH_STACK: string[] = [
+  'Laravel',
+  'React',
+  'TypeScript',
+  'Tailwind CSS',
+  'Inertia.js',
+  'shadcn/ui',
+  'PHP',
+  'MySQL',
+  'AWS',
+  'JavaScript',
+  'Vite',
+  'Docker',
+  'Git',
+];
