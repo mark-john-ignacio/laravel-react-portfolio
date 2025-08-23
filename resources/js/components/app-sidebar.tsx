@@ -4,15 +4,19 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, User, Share2, Layers3, BriefcaseBusiness, FolderKanban, Image as ImageIcon, Settings2, Inbox } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
+    { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
+    { title: 'Personal Info', href: '/admin/portfolio/personal-info', icon: User },
+    { title: 'Social Links', href: '/admin/portfolio/social-links', icon: Share2 },
+    { title: 'Tech Stack', href: '/admin/portfolio/tech-stack', icon: Layers3 },
+    { title: 'Experiences', href: '/admin/portfolio/experiences', icon: BriefcaseBusiness },
+    { title: 'Projects', href: '/admin/portfolio/projects', icon: FolderKanban },
+    { title: 'Media', href: '/admin/portfolio/media', icon: ImageIcon },
+    { title: 'Contact', href: '/admin/portfolio/contact-submissions', icon: Inbox },
+    { title: 'Settings', href: '/admin/portfolio/settings', icon: Settings2 },
 ];
 
 const footerNavItems: NavItem[] = [
