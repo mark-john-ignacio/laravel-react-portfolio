@@ -10,22 +10,22 @@ import { Label } from '@/components/ui/label';
 
 // Narrow form data shape to avoid deep instantiation via any + inference
 type SocialLinkForm = {
-    label: string;
+    display_name: string;
     platform: string;
     url: string;
     icon: string;
     is_active: boolean;
-    order_column: number;
+    sort_order: number;
 };
 
 export default function SocialLinksCreate() {
     const { data, setData, post, processing, errors } = useForm<SocialLinkForm>({
-        label: '',
+        display_name: '',
         platform: '',
         url: '',
         icon: '',
         is_active: true,
-        order_column: 0
+        sort_order: 0
     });
 
     function submit(e: FormEvent) {
@@ -46,11 +46,14 @@ export default function SocialLinksCreate() {
                         <CardTitle className="text-sm">Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField label="Label" htmlFor="label" error={errors.label as string}>
-                            <Input id="label" value={data.label} onChange={e => setData('label', e.target.value)} />
-                        </FormField>
                         <FormField label="Platform" htmlFor="platform" error={errors.platform as string}>
                             <Input id="platform" value={data.platform} onChange={e => setData('platform', e.target.value)} />
+                        </FormField>
+                        <FormField label="Display Name" htmlFor="display_name" description="Optional label shown in listings" error={errors.display_name as string}>
+                            <Input id="display_name" value={data.display_name} onChange={e => setData('display_name', e.target.value)} />
+                        </FormField>
+                        <FormField label="Sort Order" htmlFor="sort_order" description="Lower numbers appear first" error={errors.sort_order as string}>
+                            <Input id="sort_order" type="number" value={data.sort_order} onChange={e => setData('sort_order', Number(e.target.value))} />
                         </FormField>
                         <FormField label="URL" htmlFor="url" error={errors.url as string}>
                             <Input id="url" value={data.url} onChange={e => setData('url', e.target.value)} />
