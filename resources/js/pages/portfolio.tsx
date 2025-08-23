@@ -2,6 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
+import { TechnologyBadge } from '@/components/technology-badge';
 
 // Section ids for navigation
 const sections = [
@@ -232,12 +233,9 @@ function AboutSection() {
             accessibility, and developer experience.
           </p>
           <p>Here are a few technologies I’ve been working with recently:</p>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-sm">
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
             {tech.map((t) => (
-              <li key={t} className="flex items-center gap-2">
-                <span className="text-[#64ffda]">▹</span>
-                <span>{t}</span>
-              </li>
+              <TechnologyBadge key={t} label={t} />
             ))}
           </ul>
         </div>
@@ -297,6 +295,25 @@ const experiences: ExperienceItem[] = [
 function ExperienceSection() {
   const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
+  const [activeIndex, setActiveIndex] = useState(0);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const next = (activeIndex + 1) % experiences.length;
+      setActiveIndex(next);
+      tabRefs.current[next]?.focus();
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prev = (activeIndex - 1 + experiences.length) % experiences.length;
+      setActiveIndex(prev);
+      tabRefs.current[prev]?.focus();
+    }
+  };
+
+  const active = experiences[activeIndex];
+
   return (
     <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby="experience">
       <SectionHeading id="experience" index={2}>
@@ -306,38 +323,71 @@ function ExperienceSection() {
         initial={{ opacity: 0, y: 32 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="grid gap-10 md:grid-cols-[200px_1fr]"
+        className="grid gap-10 md:grid-cols-[220px_1fr]"
       >
-        <ul className="flex md:flex-col overflow-x-auto md:overflow-visible -mx-2 md:mx-0 pb-2 md:pb-0">
-          {experiences.map((exp, i) => (
-            <li key={exp.company} className="px-2 md:px-0">
-              <button
-                className={`w-full border-l md:border-l-2 pl-4 pr-8 py-2 text-left font-mono text-xs transition-colors hover:text-[#64ffda] text-[#8892b0] ${
-                  i === 0 ? 'border-[#64ffda] text-[#64ffda]' : 'border-[#233554]'
-                }`}
-              >
-                {exp.company}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div>
-          {experiences.slice(0, 1).map((exp) => (
-            <div key={exp.company}>
-              <h3 className="mb-1 text-lg font-semibold text-[#e6f1ff]">
-                {exp.role} <span className="text-[#64ffda]">@ {exp.company}</span>
-              </h3>
-              <p className="mb-4 font-mono text-xs text-[#8892b0]">{exp.period}</p>
-              <ul className="space-y-3">
-                {exp.bullets.map((b) => (
-                  <li key={b} className="flex gap-3 text-[#8892b0]">
-                    <span className="mt-1 text-[#64ffda]">▹</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+        <div role="tablist" aria-label="Job history" className="relative">
+          <ul className="flex md:flex-col overflow-x-auto md:overflow-visible -mx-2 md:mx-0 pb-2 md:pb-0 pr-4 md:pr-0">
+            {experiences.map((exp, i) => {
+              const isActive = i === activeIndex;
+              return (
+                <li key={exp.company} className="px-2 md:px-0">
+                  <button
+                    ref={(el) => {
+                      tabRefs.current[i] = el;
+                    }}
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`panel-${i}`}
+                    id={`tab-${i}`}
+                    tabIndex={isActive ? 0 : -1}
+                    onClick={() => setActiveIndex(i)}
+                    onKeyDown={onKeyDown}
+                    className={`w-full border-l md:border-l-2 pl-4 pr-8 py-2 text-left font-mono text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50 ${
+                      isActive
+                        ? 'border-[#64ffda] text-[#64ffda] bg-[#112240]'
+                        : 'border-[#233554] text-[#8892b0] hover:text-[#64ffda]'
+                    }`}
+                  >
+                    {exp.company}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <span
+            aria-hidden="true"
+            className="hidden md:block absolute left-0 top-0 h-[var(--indicator-height)] w-[2px] bg-[#64ffda] transition-transform duration-300"
+            style={{
+              // indicator moves per active index (approx button height 40px + border)
+              transform: `translateY(${activeIndex * 40}px)`,
+            }}
+          />
+        </div>
+        <div
+          role="tabpanel"
+          id={`panel-${activeIndex}`}
+          aria-labelledby={`tab-${activeIndex}`}
+          className="min-h-[220px]"
+        >
+          <motion.div
+            key={active.company}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+          >
+            <h3 className="mb-1 text-lg font-semibold text-[#e6f1ff]">
+              {active.role} <span className="text-[#64ffda]">@ {active.company}</span>
+            </h3>
+            <p className="mb-4 font-mono text-xs text-[#8892b0]">{active.period}</p>
+            <ul className="space-y-3">
+              {active.bullets.map((b) => (
+                <li key={b} className="flex gap-3 text-[#8892b0]">
+                  <span className="mt-1 text-[#64ffda]">▹</span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
       </motion.div>
     </section>
@@ -358,29 +408,50 @@ const projects: ProjectItem[] = [
     description: 'A serverless resume built with AWS Lambda, API Gateway, DynamoDB, and CloudFront.',
     tech: ['AWS', 'Lambda', 'API Gateway', 'DynamoDB', 'CloudFront'],
     featured: true,
+    links: { github: 'https://github.com/mark-john-ignacio', demo: '#' },
   },
   {
     title: 'Online Thesis Archiving System',
     description: 'A secure platform for managing and accessing academic research documents.',
     tech: ['PHP', 'MySQL', 'Tailwind'],
     featured: true,
+    links: { github: '#', demo: '#' },
   },
   {
     title: 'HRWEB Financial Applications',
     description: 'Modern financial applications built with Laravel and React improving stability and UX.',
     tech: ['Laravel', 'React', 'Tailwind', 'Inertia.js'],
     featured: true,
+    links: { github: '#', demo: '#' },
   },
   {
     title: 'Portfolio Website',
     description: 'This portfolio project showcasing my work and experience with refined UI/UX.',
     tech: ['Laravel', 'React', 'TypeScript', 'Framer Motion'],
+    links: { github: 'https://github.com/mark-john-ignacio/laravel-react-portfolio', demo: '#' },
+  },
+  // Additional non-featured sample items for grid expansion
+  {
+    title: 'Infrastructure Scripts',
+    description: 'Automation scripts for provisioning and monitoring cloud resources.',
+    tech: ['AWS', 'Python', 'Bash'],
+  },
+  {
+    title: 'Design System Playground',
+    description: 'Exploration of component tokens & accessibility patterns.',
+    tech: ['React', 'TypeScript', 'Storybook'],
+  },
+  {
+    title: 'Real-time Dashboard Demo',
+    description: 'Event-driven updates demonstrating WebSocket streaming.',
+    tech: ['Laravel', 'Pusher', 'React'],
   },
 ];
 
 function ProjectsSection() {
   const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
+  const [showAll, setShowAll] = useState(false);
   return (
     <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby="work">
       <SectionHeading id="work" index={3}>
@@ -423,18 +494,45 @@ function ProjectsSection() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {projects
             .filter((p) => !p.featured)
-            .map((p) => (
+            .slice(0, showAll ? undefined : 3)
+            .map((p, idx) => (
               <motion.div
                 key={p.title}
                 initial={{ opacity: 0, y: 24 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6 }}
-                className="group relative rounded-lg bg-[#112240] p-6 ring-1 ring-[#233554] hover:-translate-y-1 hover:ring-[#64ffda] transition"
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                className="group relative flex flex-col rounded-lg bg-[#112240] p-6 ring-1 ring-[#233554] hover:-translate-y-1 hover:ring-[#64ffda] transition"
               >
-                <h4 className="mb-2 text-lg font-semibold text-[#e6f1ff] group-hover:text-[#64ffda] transition-colors">
-                  {p.title}
-                </h4>
-                <p className="mb-4 text-sm text-[#8892b0]">{p.description}</p>
+                <div className="mb-2 flex items-start justify-between">
+                  <h4 className="text-lg font-semibold text-[#e6f1ff] group-hover:text-[#64ffda] transition-colors">
+                    {p.title}
+                  </h4>
+                  <div className="flex gap-3 text-[#8892b0]">
+                    {p.links?.github && (
+                      <a
+                        href={p.links.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-[#64ffda]"
+                        aria-label="GitHub repository"
+                      >
+                        GH
+                      </a>
+                    )}
+                    {p.links?.demo && (
+                      <a
+                        href={p.links.demo}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-[#64ffda]"
+                        aria-label="Live demo"
+                      >
+                        ↗
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <p className="mb-4 text-sm text-[#8892b0] flex-1">{p.description}</p>
                 <ul className="flex flex-wrap gap-3 font-mono text-[11px] text-[#8892b0]">
                   {p.tech.map((t) => (
                     <li key={t}>{t}</li>
@@ -442,6 +540,14 @@ function ProjectsSection() {
                 </ul>
               </motion.div>
             ))}
+        </div>
+        <div className="mt-10 text-center">
+          <button
+            onClick={() => setShowAll((s) => !s)}
+            className="rounded border border-[#64ffda] px-6 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+          >
+            {showAll ? 'Show Less' : 'Show More'}
+          </button>
         </div>
       </motion.div>
     </section>
