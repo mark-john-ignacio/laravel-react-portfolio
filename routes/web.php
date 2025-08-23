@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Public\PublicController;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+// Portfolio single-page application entry
+Route::get('/', [PublicController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
