@@ -533,113 +533,35 @@ const contactSchema = z.object({
 type ContactValues = z.infer<typeof contactSchema>;
 
 function ContactSection() {
-  const { props } = usePage<any>();
-  const form = useForm<ContactValues>({
-    resolver: zodResolver(contactSchema),
-    defaultValues: { name: '', email: '', message: '' },
-  });
-  const onSubmit = (values: ContactValues) => {
-    router.post('/contact', values, {
-      onSuccess: () => {
-        form.reset();
-        const heading = document.getElementById('contact-heading');
-        heading?.focus();
-      },
-    });
-  };
-  const submitting = form.formState.isSubmitting;
   return (
-  <section className="px-12 py-24 md:px-48 xl:px-64" aria-labelledby="contact">
+    <section className="px-12 py-24 md:px-48 xl:px-64" aria-labelledby="contact">
       <div className="text-center">
         <SectionHeading id="contact" index={4}>
           What's Next?
         </SectionHeading>
       </div>
       <div className="mx-auto max-w-2xl">
-        <RevealGroup as="div" className="space-y-6" stagger={0.22} y={30} once>
-          <Reveal as="h3" id="contact-heading" tabIndex={-1} className="mb-2 text-center text-4xl font-bold text-[#e6f1ff] focus:outline-none">
+        <div className="space-y-8 text-center">
+          <h3 id="contact-heading" tabIndex={-1} className="text-4xl font-bold text-[#e6f1ff] focus:outline-none">
             Get In Touch
-          </Reveal>
-          <Reveal as="p" className="mb-4 text-center text-[#8892b0]" y={18}>
-            I'm currently open to new opportunities and collaborations. Whether you have a question or just want to say
-            hi, my inbox is always open.
-          </Reveal>
-          {props.flash?.success && (
-            <Reveal as="div" className="rounded border border-green-400 bg-green-500/10 px-4 py-3 text-sm text-green-300" role="alert" aria-live="polite" y={14}>
-              {props.flash.success}
-            </Reveal>
-          )}
-          {props.errors && Object.keys(props.errors).length > 0 && !props.flash?.success && (
-            <Reveal as="ul" className="space-y-1 rounded border border-red-400 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert" aria-live="assertive" y={14}>
-              {Object.values(props.errors).map((err: any, i: number) => (
-                <li key={i}>{err}</li>
-              ))}
-            </Reveal>
-          )}
-          <Reveal as="form" onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6" aria-describedby="contact-help" y={26}>
-            <RevealGroup as="div" className="grid gap-6 md:grid-cols-2" stagger={0.12} y={18} once>
-              <Reveal as="div" className="text-left" y={18}>
-                <label htmlFor="name" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  autoComplete="name"
-                  {...form.register('name')}
-                  className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
-                  aria-invalid={!!form.formState.errors.name}
-                />
-                {form.formState.errors.name && (
-                  <p className="mt-1 text-xs text-red-400">{form.formState.errors.name.message}</p>
-                )}
-              </Reveal>
-              <Reveal as="div" className="text-left" y={18}>
-                <label htmlFor="email" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  {...form.register('email')}
-                  className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
-                  aria-invalid={!!form.formState.errors.email}
-                />
-                {form.formState.errors.email && (
-                  <p className="mt-1 text-xs text-red-400">{form.formState.errors.email.message}</p>
-                )}
-              </Reveal>
-            </RevealGroup>
-            <Reveal as="div" className="text-left" y={22}>
-              <label htmlFor="message" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
-                Message
-              </label>
-              <textarea
-                id="message"
-                rows={6}
-                {...form.register('message')}
-                className="w-full resize-none rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
-                aria-invalid={!!form.formState.errors.message}
-              />
-              {form.formState.errors.message && (
-                <p className="mt-1 text-xs text-red-400">{form.formState.errors.message.message}</p>
-              )}
-            </Reveal>
-            <Reveal as="div" className="flex items-center justify-between flex-col sm:flex-row gap-6" y={18}>
-              <p id="contact-help" className="text-xs text-[#8892b0]">
-                All fields are required. I'll get back to you as soon as I can.
-              </p>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="rounded border border-[#64ffda] px-8 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
-              >
-                {submitting ? 'Sending...' : 'Send Message'}
-              </button>
-            </Reveal>
-          </Reveal>
-        </RevealGroup>
+          </h3>
+          <p className="text-[#8892b0] max-w-xl mx-auto">
+            I'm currently open to new opportunities and collaborations. If you just want to say hello or discuss a project,
+            feel free to reach out — I read every message.
+          </p>
+          <div>
+            <a
+              href="mailto:Markme44.mm@gmail.com?subject=Say%20Hello%20From%20Your%20Portfolio&body=Hi%20Mark,%20"
+              className="inline-block rounded border border-[#64ffda] px-8 py-4 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+              aria-describedby="contact-note"
+            >
+              Say Hello
+            </a>
+          </div>
+          <p id="contact-note" className="text-xs text-[#8892b0]">
+            This opens your default email client.
+          </p>
+        </div>
       </div>
     </section>
   );
