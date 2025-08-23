@@ -34,17 +34,8 @@ function PortfolioPage() {
   const adaptiveFadeUp = reduceMotion ? { hidden: { opacity: 0 }, show: { opacity: 1 } } : fadeUp;
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
-  const [theme, setTheme] = useState<string>(() => (typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark'));
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.dataset.theme = theme;
-      localStorage.setItem('theme', theme);
-    }
-  }, [theme]);
-  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
-  const rootClasses = theme === 'light'
-    ? 'bg-white text-slate-800'
-    : 'bg-[#0a192f] text-[#ccd6f6]';
+  // Removed theme handling; enforce dark theme classes directly
+  const rootClasses = 'bg-[#0a192f] text-[#ccd6f6]';
   return (
     <>
       <Head title="Mark John Ignacio | Portfolio">
@@ -84,9 +75,9 @@ function PortfolioPage() {
         {!reduceMotion && (
           <motion.div aria-hidden="true" style={{ scaleX }} className="fixed left-0 top-0 z-50 h-1 w-full origin-left bg-[#64ffda]" />
         )}
-  <SocialSidebar />
-  <EmailSidebar />
-        <Header theme={theme} onToggleTheme={toggleTheme} />
+        <SocialSidebar />
+        <EmailSidebar />
+        <Header />
         <main id="main" className="pt-20" role="main">
           <HeroSection motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }} />
           <AboutSection />
@@ -101,7 +92,7 @@ function PortfolioPage() {
     </>
   );
 }
-function Header({ theme, onToggleTheme }: { theme: string; onToggleTheme: () => void }) {
+function Header() {
   const active = useScrollSpy(sections.map((s) => s.id));
   const [open, setOpen] = useState(false);
 
@@ -148,13 +139,6 @@ function Header({ theme, onToggleTheme }: { theme: string; onToggleTheme: () => 
           >
             Resume
           </a>
-          <button
-            onClick={onToggleTheme}
-            className="rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? 'Light' : 'Dark'}
-          </button>
         </nav>
         <button
           onClick={() => setOpen(true)}
@@ -206,12 +190,6 @@ function Header({ theme, onToggleTheme }: { theme: string; onToggleTheme: () => 
               >
                 Resume
               </a>
-              <button
-                onClick={onToggleTheme}
-                className="rounded border border-[#64ffda] px-4 py-2 font-mono text-xs text-[#64ffda] hover:bg-[#64ffda]/10"
-              >
-                {theme === 'dark' ? 'Light' : 'Dark'}
-              </button>
             </div>
           </div>
         </div>
