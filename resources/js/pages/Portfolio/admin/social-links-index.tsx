@@ -15,7 +15,7 @@ export default function SocialLinksIndex({ links }: { links: SocialLinkRow[] }) 
                         <Link href="/admin/portfolio/social-links/create">New</Link>
                     </Button>
                 </div>
-                <DataTable columns={socialLinkColumns} data={links} />
+                <DataTable columns={socialLinkColumns} data={links} searchKey="platform" />
             </div>
         </AppLayout>
     );
