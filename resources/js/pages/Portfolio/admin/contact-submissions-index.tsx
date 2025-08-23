@@ -1,25 +1,41 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export default function ContactSubmissionsIndex({ submissions }: { submissions: any }) {
     return (
         <AppLayout breadcrumbs={[{ title: 'Contact Submissions', href: '/admin/portfolio/contact-submissions' }]}>            
             <Head title="Contact Submissions" />
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-6 max-w-5xl">
                 <div className="flex justify-between items-center">
                     <h1 className="text-xl font-semibold">Contact Messages</h1>
-                    <Link href="/admin/portfolio/contact-submissions/export" as="button" className="rounded bg-muted px-3 py-1 text-xs">Export CSV</Link>
+                    <Button asChild size="sm" variant="secondary"><Link href="/admin/portfolio/contact-submissions/export">Export CSV</Link></Button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {submissions.data.map((s: any) => (
-                        <Link href={`/admin/portfolio/contact-submissions/${s.id}`} key={s.id} className="block border rounded p-3 hover:bg-muted/40">
-                            <div className="flex justify-between text-xs">
-                                <span className="font-medium">{s.name}</span>
-                                <span className="text-muted-foreground">{s.created_at_human}</span>
-                            </div>
-                            <p className="text-xs line-clamp-2 text-muted-foreground">{s.message}</p>
-                            {!s.is_read && <span className="inline-block mt-1 text-[10px] bg-amber-500/20 text-amber-700 px-2 py-0.5 rounded">Unread</span>}
-                        </Link>
+                        <Card key={s.id} className="hover:bg-muted/40 transition-colors">
+                            <CardHeader className="pb-2 flex flex-row items-start justify-between gap-4">
+                                <div className="space-y-1">
+                                    <CardTitle className="text-sm font-medium leading-tight">
+                                        <Link href={`/admin/portfolio/contact-submissions/${s.id}`} className="underline-offset-2 hover:underline">
+                                            {s.name}
+                                        </Link>
+                                    </CardTitle>
+                                    <div className="text-[11px] text-muted-foreground flex items-center gap-2">
+                                        <span>{s.created_at_human}</span>
+                                        {!s.is_read && <Badge variant="outline" className="text-[10px] px-2 py-0">Unread</Badge>}
+                                    </div>
+                                </div>
+                                <div className="text-[11px] text-right text-muted-foreground line-clamp-3 max-w-[260px] hidden md:block">
+                                    {s.email}
+                                </div>
+                            </CardHeader>
+                            <CardContent className="pt-0 text-xs text-muted-foreground line-clamp-2">
+                                {s.message}
+                            </CardContent>
+                        </Card>
                     ))}
                 </div>
             </div>

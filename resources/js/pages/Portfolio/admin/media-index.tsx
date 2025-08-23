@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 
 type MediaUploadForm = { file: File | null };
 export default function MediaIndex({ media }: { media: any[] }) {
@@ -30,7 +31,12 @@ export default function MediaIndex({ media }: { media: any[] }) {
                                 <Label htmlFor="file">File</Label>
                                 <Input id="file" type="file" onChange={(e: ChangeEvent<HTMLInputElement>) => setData('file', e.target.files ? e.target.files[0] : null)} />
                                 {errors.file && <p className="text-xs text-destructive">{errors.file}</p>}
-                                {progress && <p className="text-[10px] text-muted-foreground">Uploading {progress.percentage}%</p>}
+                                {progress && (
+                                    <div className="space-y-1 w-full max-w-xs">
+                                        <Progress value={progress.percentage} />
+                                        <p className="text-[10px] text-muted-foreground">Uploading {progress.percentage}%</p>
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <Button type="submit" disabled={processing} className="mt-1 md:mt-0">Upload</Button>
@@ -43,8 +49,8 @@ export default function MediaIndex({ media }: { media: any[] }) {
                         <Card key={m.id} className="overflow-hidden group">
                             <CardContent className="p-0">
                                 {m.is_image ? (
-                                    <div className="relative">
-                                        <img src={m.url} alt={m.filename} className="aspect-video w-full object-cover" />
+                                    <div className="relative aspect-video bg-muted">
+                                        <img src={m.url} alt={m.filename} className="w-full h-full object-cover" />
                                     </div>
                                 ) : (
                                     <div className="aspect-video flex items-center justify-center text-xs bg-muted">{m.extension.toUpperCase()}</div>
