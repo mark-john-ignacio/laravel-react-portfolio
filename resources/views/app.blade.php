@@ -43,6 +43,17 @@
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead
+        @php($analyticsId = config('analytics.id'))
+        @if($analyticsId)
+            <!-- Analytics script injected only when ANALYTICS_ID is set -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analyticsId }}"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);} 
+                gtag('js', new Date());
+                gtag('config', '{{ $analyticsId }}');
+            </script>
+        @endif
     </head>
     <body class="font-sans antialiased">
         @inertia
