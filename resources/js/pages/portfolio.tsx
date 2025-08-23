@@ -1,4 +1,5 @@
-import { motion, useInView, useScroll, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { Reveal, RevealGroup } from '@/components/reveal';
 import { useEffect, useRef, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
@@ -24,7 +25,7 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
-export default function PortfolioPage() {
+function PortfolioPage() {
   const reduceMotion = typeof window !== 'undefined' ? usePrefersReducedMotion() : false;
   // Variants adjusted based on reduced motion
   const adaptiveContainer = reduceMotion ? {} : containerVariants;
@@ -215,23 +216,87 @@ function Header({ theme, onToggleTheme }: { theme: string; onToggleTheme: () => 
   );
 }
 
+import { useReveal } from '@/hooks/useReveal';
+
 function SectionHeading({ index, children, id }: { index: number; children: React.ReactNode; id: string }) {
+  const { ref, inView, hasAnimated } = useReveal<HTMLHeadingElement>({ margin: '-120px', threshold: 0.25 });
   return (
-    <h2
+    <motion.h2
+      ref={ref}
       id={id}
-  className="group mb-8 flex items-center gap-4 font-semibold tracking-tight text-[#e6f1ff] text-2xl md:text-3xl scroll-mt-24"
+      initial={{ opacity: 0, y: 24 }}
+      animate={inView || hasAnimated ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className="group mb-8 flex items-center gap-4 font-semibold tracking-tight text-[#e6f1ff] text-2xl md:text-3xl scroll-mt-24"
     >
       <span className="font-mono text-base text-[#64ffda]">{String(index).padStart(2, '0')}.</span>
       {children}
       <span className="h-px flex-1 bg-[#233554] group-hover:bg-[#64ffda]/50 transition-colors" />
-    </h2>
+    </motion.h2>
   );
 }
 
 function HeroSection({ motionVariants }: { motionVariants: { container: any; item: any } }) {
+  // Parallax layers: use scroll progress + mouse movement (Framer Motion v10: useTransform instead of .to)
+  const { scrollYProgress } = useScroll();
+  const spring1 = useSpring(scrollYProgress, { stiffness: 50, damping: 20 });
+  const spring2 = useSpring(scrollYProgress, { stiffness: 70, damping: 25 });
+  const spring3 = useSpring(scrollYProgress, { stiffness: 90, damping: 30 });
+  const layer1Y = useTransform(spring1, (v) => v * -40);
+  const layer2Y = useTransform(spring2, (v) => v * -70);
+  const layer3Y = useTransform(spring3, (v) => v * -110);
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const reduceMotion = typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const handleMove = (e: MouseEvent) => {
+      const rect = heroRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5..0.5
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      setMouse({ x, y });
+    };
+    window.addEventListener('mousemove', handleMove);
+    return () => window.removeEventListener('mousemove', handleMove);
+  }, [reduceMotion]);
+
+  // Only apply a subtle horizontal mouse shift; vertical parallax handled by y motion value
+  const motionStyle = (depth: number) => (reduceMotion ? {} : { x: mouse.x * depth });
+
   return (
-    <section className="flex min-h-[90vh] flex-col justify-center px-6 pt-24 md:px-24" aria-label="Hero">
-      <motion.div variants={motionVariants.container} initial="hidden" animate="show" className="max-w-3xl">
+    <section
+      ref={heroRef}
+      className="relative flex min-h-[90vh] flex-col justify-center overflow-hidden px-6 pt-28 md:px-24"
+      aria-label="Hero"
+    >
+      {/* Decorative parallax layers */}
+      {!reduceMotion && (
+        <>
+          <motion.div
+            aria-hidden="true"
+            style={{ y: layer1Y, ...motionStyle(12) }}
+            className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-[#64ffda]/5 blur-3xl"
+          />
+          <motion.div
+            aria-hidden="true"
+            style={{ y: layer2Y, ...motionStyle(24) }}
+            className="pointer-events-none absolute top-1/3 -left-40 h-[34rem] w-[34rem] rounded-full bg-[#233554]/40 blur-3xl"
+          />
+          <motion.div
+            aria-hidden="true"
+            style={{ y: layer3Y, ...motionStyle(40) }}
+            className="pointer-events-none absolute bottom-0 left-1/2 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-[#64ffda]/10 blur-2xl"
+          />
+          {/* Grid overlay */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.04] [background:radial-gradient(circle_at_center,rgba(100,255,218,0.25)_0,transparent_60%)]"
+          />
+        </>
+      )}
+      <motion.div variants={motionVariants.container} initial="hidden" animate="show" className="relative z-10 max-w-3xl">
         <motion.p variants={motionVariants.item} className="mb-4 font-mono text-sm text-[#64ffda]">
           Hi, my name is
         </motion.p>
@@ -263,8 +328,6 @@ function HeroSection({ motionVariants }: { motionVariants: { container: any; ite
 }
 
 function AboutSection() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
   const tech = [
     'Laravel',
     'React',
@@ -281,43 +344,42 @@ function AboutSection() {
     'Git',
   ];
   return (
-    <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby="about">
+  <section className="px-6 py-24 md:px-24" aria-labelledby="about">
       <SectionHeading id="about" index={1}>
         About Me
       </SectionHeading>
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="grid gap-12 md:grid-cols-[3fr_2fr]"
-      >
+      <div className="grid gap-12 md:grid-cols-[3fr_2fr]">
         <div className="space-y-5 text-[#8892b0] leading-relaxed">
-          <p>
-            I'm a software developer with a passion for building end-to-end web experiences—from resilient backend
-            services to rich, interactive frontends. Currently, I work on financial applications that improve stability,
-            usability, and performance.
-          </p>
-          <p>
-            I enjoy working across the stack using technologies like Laravel, PHP, and MySQL on the server, while
-            leveraging React, TypeScript, and modern component systems on the client. I care about design systems,
-            accessibility, and developer experience.
-          </p>
-          <p>Here are a few technologies I’ve been working with recently:</p>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
-            {tech.map((t) => (
-              <TechnologyBadge key={t} label={t} />
-            ))}
-          </ul>
+          <RevealGroup as="div" className="space-y-5" stagger={0.18} y={28} once>
+            <Reveal as="p">
+              I'm a software developer with a passion for building end-to-end web experiences—from resilient backend
+              services to rich, interactive frontends. Currently, I work on financial applications that improve stability,
+              usability, and performance.
+            </Reveal>
+            <Reveal as="p">
+              I enjoy working across the stack using technologies like Laravel, PHP, and MySQL on the server, while
+              leveraging React, TypeScript, and modern component systems on the client. I care about design systems,
+              accessibility, and developer experience.
+            </Reveal>
+            <Reveal as="p">Here are a few technologies I’ve been working with recently:</Reveal>
+            <Reveal as="ul" className="grid grid-cols-2 gap-x-4 gap-y-2" y={16}>
+              {tech.map((t) => (
+                <li key={t}>
+                  <TechnologyBadge label={t} />
+                </li>
+              ))}
+            </Reveal>
+          </RevealGroup>
         </div>
         <div className="relative mx-auto max-w-xs">
-          <div className="group relative">
+          <Reveal as="div" y={40} duration={0.9} className="group relative">
             <div className="rounded bg-[#64ffda]/10 p-2 backdrop-blur">
               <div className="aspect-square w-full rounded bg-[#112240] ring-1 ring-[#64ffda]/30" />
             </div>
             <div className="pointer-events-none absolute inset-0 rounded border border-[#64ffda] opacity-20 transition group-hover:opacity-40" />
-          </div>
+          </Reveal>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -363,8 +425,6 @@ const experiences: ExperienceItem[] = [
 ];
 
 function ExperienceSection() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -385,16 +445,11 @@ function ExperienceSection() {
   const active = experiences[activeIndex];
 
   return (
-    <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby="experience">
+    <section className="px-6 py-24 md:px-24" aria-labelledby="experience">
       <SectionHeading id="experience" index={2}>
         Where I've Worked
       </SectionHeading>
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="grid gap-10 md:grid-cols-[220px_1fr]"
-      >
+      <div className="grid gap-10 md:grid-cols-[220px_1fr]">
         <div role="tablist" aria-label="Job history" className="relative">
           <ul className="flex md:flex-col overflow-x-auto md:overflow-visible -mx-2 md:mx-0 pb-2 md:pb-0 pr-4 md:pr-0">
             {experiences.map((exp, i) => {
@@ -428,22 +483,16 @@ function ExperienceSection() {
             aria-hidden="true"
             className="hidden md:block absolute left-0 top-0 h-[var(--indicator-height)] w-[2px] bg-[#64ffda] transition-transform duration-300"
             style={{
-              // indicator moves per active index (approx button height 40px + border)
               transform: `translateY(${activeIndex * 40}px)`,
             }}
           />
         </div>
-        <div
-          role="tabpanel"
-          id={`panel-${activeIndex}`}
-          aria-labelledby={`tab-${activeIndex}`}
-          className="min-h-[220px]"
-        >
+        <div role="tabpanel" id={`panel-${activeIndex}`} aria-labelledby={`tab-${activeIndex}`} className="min-h-[220px]">
           <motion.div
             key={active.company}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
           >
             <h3 className="mb-1 text-lg font-semibold text-[#e6f1ff]">
               {active.role} <span className="text-[#64ffda]">@ {active.company}</span>
@@ -459,7 +508,7 @@ function ExperienceSection() {
             </ul>
           </motion.div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -480,8 +529,6 @@ const contactSchema = z.object({
 type ContactValues = z.infer<typeof contactSchema>;
 
 function ContactSection() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
   const { props } = usePage<any>();
   const form = useForm<ContactValues>({
     resolver: zodResolver(contactSchema),
@@ -498,101 +545,98 @@ function ContactSection() {
   };
   const submitting = form.formState.isSubmitting;
   return (
-    <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby="contact">
+  <section className="px-6 py-24 md:px-24" aria-labelledby="contact">
       <div className="text-center">
         <SectionHeading id="contact" index={4}>
           What's Next?
         </SectionHeading>
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="mx-auto max-w-2xl"
-      >
-        <h3 id="contact-heading" tabIndex={-1} className="mb-6 text-center text-4xl font-bold text-[#e6f1ff] focus:outline-none">
-          Get In Touch
-        </h3>
-        <p className="mb-10 text-center text-[#8892b0]">
-          I'm currently open to new opportunities and collaborations. Whether you have a question or just want to say
-          hi, my inbox is always open.
-        </p>
-        {props.flash?.success && (
-          <div className="mb-6 rounded border border-green-400 bg-green-500/10 px-4 py-3 text-sm text-green-300" role="alert" aria-live="polite">
-            {props.flash.success}
-          </div>
-        )}
-        {props.errors && Object.keys(props.errors).length > 0 && !props.flash?.success && (
-          <ul className="mb-6 space-y-1 rounded border border-red-400 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert" aria-live="assertive">
-            {Object.values(props.errors).map((err: any, i: number) => (
-              <li key={i}>{err}</li>
-            ))}
-          </ul>
-        )}
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6" aria-describedby="contact-help">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="text-left">
-              <label htmlFor="name" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
-                Name
+      <div className="mx-auto max-w-2xl">
+        <RevealGroup as="div" className="space-y-6" stagger={0.22} y={30} once>
+          <Reveal as="h3" id="contact-heading" tabIndex={-1} className="mb-2 text-center text-4xl font-bold text-[#e6f1ff] focus:outline-none">
+            Get In Touch
+          </Reveal>
+          <Reveal as="p" className="mb-4 text-center text-[#8892b0]" y={18}>
+            I'm currently open to new opportunities and collaborations. Whether you have a question or just want to say
+            hi, my inbox is always open.
+          </Reveal>
+          {props.flash?.success && (
+            <Reveal as="div" className="rounded border border-green-400 bg-green-500/10 px-4 py-3 text-sm text-green-300" role="alert" aria-live="polite" y={14}>
+              {props.flash.success}
+            </Reveal>
+          )}
+          {props.errors && Object.keys(props.errors).length > 0 && !props.flash?.success && (
+            <Reveal as="ul" className="space-y-1 rounded border border-red-400 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert" aria-live="assertive" y={14}>
+              {Object.values(props.errors).map((err: any, i: number) => (
+                <li key={i}>{err}</li>
+              ))}
+            </Reveal>
+          )}
+          <Reveal as="form" onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6" aria-describedby="contact-help" y={26}>
+            <RevealGroup as="div" className="grid gap-6 md:grid-cols-2" stagger={0.12} y={18} once>
+              <Reveal as="div" className="text-left" y={18}>
+                <label htmlFor="name" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  autoComplete="name"
+                  {...form.register('name')}
+                  className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
+                  aria-invalid={!!form.formState.errors.name}
+                />
+                {form.formState.errors.name && (
+                  <p className="mt-1 text-xs text-red-400">{form.formState.errors.name.message}</p>
+                )}
+              </Reveal>
+              <Reveal as="div" className="text-left" y={18}>
+                <label htmlFor="email" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  {...form.register('email')}
+                  className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
+                  aria-invalid={!!form.formState.errors.email}
+                />
+                {form.formState.errors.email && (
+                  <p className="mt-1 text-xs text-red-400">{form.formState.errors.email.message}</p>
+                )}
+              </Reveal>
+            </RevealGroup>
+            <Reveal as="div" className="text-left" y={22}>
+              <label htmlFor="message" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
+                Message
               </label>
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                {...form.register('name')}
-                className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
-                aria-invalid={!!form.formState.errors.name}
+              <textarea
+                id="message"
+                rows={6}
+                {...form.register('message')}
+                className="w-full resize-none rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
+                aria-invalid={!!form.formState.errors.message}
               />
-              {form.formState.errors.name && (
-                <p className="mt-1 text-xs text-red-400">{form.formState.errors.name.message}</p>
+              {form.formState.errors.message && (
+                <p className="mt-1 text-xs text-red-400">{form.formState.errors.message.message}</p>
               )}
-            </div>
-            <div className="text-left">
-              <label htmlFor="email" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                {...form.register('email')}
-                className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
-                aria-invalid={!!form.formState.errors.email}
-              />
-              {form.formState.errors.email && (
-                <p className="mt-1 text-xs text-red-400">{form.formState.errors.email.message}</p>
-              )}
-            </div>
-          </div>
-          <div className="text-left">
-            <label htmlFor="message" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
-              Message
-            </label>
-            <textarea
-              id="message"
-              rows={6}
-              {...form.register('message')}
-              className="w-full resize-none rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
-              aria-invalid={!!form.formState.errors.message}
-            />
-            {form.formState.errors.message && (
-              <p className="mt-1 text-xs text-red-400">{form.formState.errors.message.message}</p>
-            )}
-          </div>
-          <div className="flex items-center justify-between flex-col sm:flex-row gap-6">
-            <p id="contact-help" className="text-xs text-[#8892b0]">
-              All fields are required. I'll get back to you as soon as I can.
-            </p>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded border border-[#64ffda] px-8 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
-            >
-              {submitting ? 'Sending...' : 'Send Message'}
-            </button>
-          </div>
-        </form>
-      </motion.div>
+            </Reveal>
+            <Reveal as="div" className="flex items-center justify-between flex-col sm:flex-row gap-6" y={18}>
+              <p id="contact-help" className="text-xs text-[#8892b0]">
+                All fields are required. I'll get back to you as soon as I can.
+              </p>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="rounded border border-[#64ffda] px-8 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+              >
+                {submitting ? 'Sending...' : 'Send Message'}
+              </button>
+            </Reveal>
+          </Reveal>
+        </RevealGroup>
+      </div>
     </section>
   );
 }
@@ -604,3 +648,5 @@ function Footer() {
     </footer>
   );
 }
+
+export default PortfolioPage;

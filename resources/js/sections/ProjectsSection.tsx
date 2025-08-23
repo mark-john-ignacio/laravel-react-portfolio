@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { useInView, motion, AnimatePresence } from 'framer-motion';
 import * as Dialog from '@radix-ui/react-dialog';
+import { Reveal, RevealGroup } from '@/components/reveal';
 
 interface ProjectItem {
   id: string;
@@ -105,14 +106,9 @@ export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSecti
         transition={{ duration: 0.7, ease: 'easeOut' }}
         className="space-y-24"
       >
+        <RevealGroup>
         {featured.map((p, idx) => (
-          <motion.div
-            key={p.id}
-            initial={{ opacity: 0, y: 40 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: idx * 0.15 + 0.15, duration: 0.6 }}
-            className="grid items-center gap-10 md:grid-cols-2"
-          >
+          <Reveal key={p.id} index={idx} distance={40} className="grid items-center gap-10 md:grid-cols-2">
             <button
               type="button"
               onClick={() => setActiveProject(p)}
@@ -163,15 +159,14 @@ export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSecti
                 </button>
               </div>
             </div>
-          </motion.div>
+          </Reveal>
         ))}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {secondary.slice(0, showAll ? undefined : 3).map((p, idx) => (
-            <motion.div
+        </RevealGroup>
+        <RevealGroup as="div" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {secondary.slice(0, showAll ? undefined : 3).map((p) => (
+            <Reveal
               key={p.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: idx * 0.05 }}
+              distance={24}
               className="group relative flex flex-col rounded-lg bg-[#112240] p-6 ring-1 ring-[#233554] hover:-translate-y-1 hover:ring-[#64ffda] transition"
             >
               <div className="mb-3 aspect-video w-full overflow-hidden rounded bg-[#0f223d]">
@@ -226,9 +221,9 @@ export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSecti
                   Details
                 </button>
               </div>
-            </motion.div>
+            </Reveal>
           ))}
-        </div>
+        </RevealGroup>
         <div className="mt-10 text-center">
           <button
             onClick={() => setShowAll((s) => !s)}
