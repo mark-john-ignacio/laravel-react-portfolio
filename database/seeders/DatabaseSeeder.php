@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\Experience;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +21,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Mark John Ignacio',
                 'email_verified_at' => now(),
+                'password' => Hash::make('password'),
             ],
         );
 
