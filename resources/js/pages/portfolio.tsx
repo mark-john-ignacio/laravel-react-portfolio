@@ -272,7 +272,7 @@ function HeroSection({ motionVariants }: { motionVariants: { container: any; ite
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[90vh] flex-col justify-center overflow-hidden px-6 pt-28 md:px-24"
+  className="relative flex min-h-[90vh] flex-col justify-center overflow-hidden px-12 pt-28 md:px-48 xl:px-64"
       aria-label="Hero"
     >
       {/* Decorative parallax layers */}
@@ -306,11 +306,11 @@ function HeroSection({ motionVariants }: { motionVariants: { container: any; ite
         </motion.p>
         <motion.h1
           variants={motionVariants.item}
-          className="mb-2 text-4xl font-extrabold leading-tight text-[#e6f1ff] sm:text-5xl md:text-6xl"
+          className="mb-2 text-5xl font-extrabold leading-tight text-[#e6f1ff] sm:text-6xl md:text-7xl"
         >
           Mark John Ignacio.
         </motion.h1>
-        <motion.h2 variants={motionVariants.item} className="mb-6 text-3xl font-semibold text-[#8892b0] sm:text-4xl">
+        <motion.h2 variants={motionVariants.item} className="mb-6 text-4xl font-semibold text-[#8892b0] sm:text-5xl">
           I build things for the web.
         </motion.h2>
         <motion.p variants={motionVariants.item} className="mb-10 max-w-xl text-[#8892b0]">
@@ -348,7 +348,7 @@ function AboutSection() {
     'Git',
   ];
   return (
-  <section className="px-6 py-24 md:px-24" aria-labelledby="about">
+  <section className="px-12 py-24 md:px-48 xl:px-64" aria-labelledby="about">
       <SectionHeading id="about" index={1}>
         About Me
       </SectionHeading>
@@ -449,7 +449,7 @@ function ExperienceSection() {
   const active = experiences[activeIndex];
 
   return (
-    <section className="px-6 py-24 md:px-24" aria-labelledby="experience">
+  <section className="px-12 py-24 md:px-48 xl:px-64" aria-labelledby="experience">
       <SectionHeading id="experience" index={2}>
         Where I've Worked
       </SectionHeading>
@@ -549,7 +549,7 @@ function ContactSection() {
   };
   const submitting = form.formState.isSubmitting;
   return (
-  <section className="px-6 py-24 md:px-24" aria-labelledby="contact">
+  <section className="px-12 py-24 md:px-48 xl:px-64" aria-labelledby="contact">
       <div className="text-center">
         <SectionHeading id="contact" index={4}>
           What's Next?

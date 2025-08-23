@@ -95,7 +95,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSecti
   const secondary = useMemo(() => baseProjects.filter((p) => !p.featured), []);
 
   return (
-    <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby={id}>
+  <section ref={ref} className="px-12 py-24 md:px-48 xl:px-64" aria-labelledby={id}>
       <h2 id={id} className="group mb-8 flex items-center gap-4 font-semibold tracking-tight text-[#e6f1ff] text-2xl md:text-3xl">
         <span className="font-mono text-base text-[#64ffda]">{String(headingIndex).padStart(2, '0')}.</span> Some Things I've Built
         <span className="h-px flex-1 bg-[#233554] group-hover:bg-[#64ffda]/50 transition-colors" />
