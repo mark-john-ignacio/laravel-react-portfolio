@@ -1,37 +1,43 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function SocialLinksIndex({ links }: { links: any[] }) {
     return (
         <AppLayout breadcrumbs={[{ title: 'Social Links', href: '/admin/portfolio/social-links' }]}>            
             <Head title="Social Links" />
-            <div className="p-4 space-y-4">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-xl font-semibold">Social Links</h1>
-                    <Link href="/admin/portfolio/social-links/create" className="rounded bg-primary px-3 py-1 text-primary-foreground">New</Link>
+            <div className="p-4 space-y-6">
+                <div className="flex justify-between items-center gap-4">
+                    <h1 className="text-xl font-semibold tracking-tight">Social Links</h1>
+                    <Button asChild size="sm">
+                        <Link href="/admin/portfolio/social-links/create">New</Link>
+                    </Button>
                 </div>
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="text-left border-b">
-                            <th className="py-2">Platform</th>
-                            <th>Display</th>
-                            <th>URL</th>
-                            <th>Active</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {links.map(l => (
-                        <tr key={l.id} className="border-b last:border-none">
-                            <td className="py-2 font-medium">{l.platform}</td>
-                            <td>{l.display_name}</td>
-                            <td className="truncate max-w-[300px]"><a href={l.url} target="_blank" rel="noreferrer" className="text-blue-500 underline">{l.url}</a></td>
-                            <td>{l.is_active ? 'Yes' : 'No'}</td>
-                            <td><Link href={`/admin/portfolio/social-links/${l.id}/edit`} className="text-primary underline">Edit</Link></td>
-                        </tr>
+                        <Card key={l.id} className="p-4 flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <span className="font-medium text-sm truncate max-w-[140px]">{l.platform}</span>
+                                    {l.is_active ? (
+                                        <Badge variant="secondary" className="text-[10px]">Active</Badge>
+                                    ) : (
+                                        <Badge variant="outline" className="text-[10px]">Inactive</Badge>
+                                    )}
+                                </div>
+                                <Button asChild size="sm" variant="outline">
+                                    <Link href={`/admin/portfolio/social-links/${l.id}/edit`}>Edit</Link>
+                                </Button>
+                            </div>
+                            <div className="space-y-1 text-xs">
+                                <p className="text-muted-foreground truncate" title={l.display_name}>{l.display_name}</p>
+                                <a href={l.url} target="_blank" rel="noreferrer" className="text-primary underline break-all inline-block max-w-full text-[11px]">{l.url}</a>
+                            </div>
+                        </Card>
                     ))}
-                    </tbody>
-                </table>
+                </div>
             </div>
         </AppLayout>
     );
