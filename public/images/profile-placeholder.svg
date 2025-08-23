@@ -1,0 +1,18 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Profile Placeholder</title>
+  <desc id="desc">Abstract placeholder silhouette with gradient background</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a192f" />
+      <stop offset="100%" stop-color="#112240" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#64ffda" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#64ffda" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="24" fill="url(#bg)" />
+  <circle cx="200" cy="150" r="72" fill="#233554" stroke="#64ffda" stroke-width="2" />
+  <path d="M96 318c8-70 56-108 104-108s96 38 104 108" fill="#233554" stroke="#64ffda" stroke-width="2" stroke-linecap="round" />
+  <rect x="40" y="40" width="320" height="320" fill="url(#accent)" />
+</svg>
