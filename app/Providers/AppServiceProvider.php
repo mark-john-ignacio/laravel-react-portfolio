@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Inertia::share([
+            'flash' => function () {
+                return [
+                    'success' => Session::get('success'),
+                    'error' => Session::get('error'),
+                ];
+            },
+        ]);
     }
 }

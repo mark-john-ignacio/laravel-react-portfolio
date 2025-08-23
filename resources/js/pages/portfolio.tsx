@@ -30,6 +30,12 @@ export default function PortfolioPage() {
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
       </Head>
       <div className="min-h-screen bg-[#0a192f] text-[#ccd6f6] font-inter selection:bg-[#64ffda]/20">
+        <a
+          href="#about"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-[#112240] focus:px-4 focus:py-2 focus:text-sm focus:outline-none focus:ring-2 focus:ring-[#64ffda]/60"
+        >
+          Skip to content
+        </a>
         <Sidebar />
         <main className="pl-0 md:pl-64 transition-[padding]">
           <HeroSection />
@@ -554,31 +560,132 @@ function ProjectsSection() {
   );
 }
 
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router, usePage } from '@inertiajs/react';
+
+const contactSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  email: z.string().email('Invalid email'),
+  message: z.string().min(10, 'Message should be at least 10 characters').max(5000),
+});
+
+type ContactValues = z.infer<typeof contactSchema>;
+
 function ContactSection() {
   const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
+  const { props } = usePage<any>();
+  const form = useForm<ContactValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: '', email: '', message: '' },
+  });
+  const onSubmit = (values: ContactValues) => {
+    router.post('/contact', values, {
+      onSuccess: () => {
+        form.reset();
+        const heading = document.getElementById('contact-heading');
+        heading?.focus();
+      },
+    });
+  };
+  const submitting = form.formState.isSubmitting;
   return (
-    <section ref={ref} className="px-6 py-24 md:px-24 text-center" aria-labelledby="contact">
-      <SectionHeading id="contact" index={4}>
-        What's Next?
-      </SectionHeading>
+    <section ref={ref} className="px-6 py-24 md:px-24" aria-labelledby="contact">
+      <div className="text-center">
+        <SectionHeading id="contact" index={4}>
+          What's Next?
+        </SectionHeading>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, ease: 'easeOut' }}
         className="mx-auto max-w-2xl"
       >
-        <h3 className="mb-6 text-4xl font-bold text-[#e6f1ff]">Get In Touch</h3>
-        <p className="mb-10 text-[#8892b0]">
+        <h3 id="contact-heading" tabIndex={-1} className="mb-6 text-center text-4xl font-bold text-[#e6f1ff] focus:outline-none">
+          Get In Touch
+        </h3>
+        <p className="mb-10 text-center text-[#8892b0]">
           I'm currently open to new opportunities and collaborations. Whether you have a question or just want to say
           hi, my inbox is always open.
         </p>
-        <a
-          href="mailto:Markme44.mm@gmail.com"
-          className="inline-block rounded border border-[#64ffda] px-8 py-4 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
-        >
-          Say Hello
-        </a>
+        {props.flash?.success && (
+          <div className="mb-6 rounded border border-green-400 bg-green-500/10 px-4 py-3 text-sm text-green-300" role="alert" aria-live="polite">
+            {props.flash.success}
+          </div>
+        )}
+        {props.errors && Object.keys(props.errors).length > 0 && !props.flash?.success && (
+          <ul className="mb-6 space-y-1 rounded border border-red-400 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert" aria-live="assertive">
+            {Object.values(props.errors).map((err: any, i: number) => (
+              <li key={i}>{err}</li>
+            ))}
+          </ul>
+        )}
+        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6" aria-describedby="contact-help">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="text-left">
+              <label htmlFor="name" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                autoComplete="name"
+                {...form.register('name')}
+                className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
+                aria-invalid={!!form.formState.errors.name}
+              />
+              {form.formState.errors.name && (
+                <p className="mt-1 text-xs text-red-400">{form.formState.errors.name.message}</p>
+              )}
+            </div>
+            <div className="text-left">
+              <label htmlFor="email" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...form.register('email')}
+                className="w-full rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
+                aria-invalid={!!form.formState.errors.email}
+              />
+              {form.formState.errors.email && (
+                <p className="mt-1 text-xs text-red-400">{form.formState.errors.email.message}</p>
+              )}
+            </div>
+          </div>
+          <div className="text-left">
+            <label htmlFor="message" className="mb-2 block font-mono text-xs uppercase tracking-wider text-[#ccd6f6]">
+              Message
+            </label>
+            <textarea
+              id="message"
+              rows={6}
+              {...form.register('message')}
+              className="w-full resize-none rounded bg-[#112240] px-4 py-3 text-sm text-[#e6f1ff] placeholder:text-[#8892b0]/60 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50"
+              aria-invalid={!!form.formState.errors.message}
+            />
+            {form.formState.errors.message && (
+              <p className="mt-1 text-xs text-red-400">{form.formState.errors.message.message}</p>
+            )}
+          </div>
+          <div className="flex items-center justify-between flex-col sm:flex-row gap-6">
+            <p id="contact-help" className="text-xs text-[#8892b0]">
+              All fields are required. I'll get back to you as soon as I can.
+            </p>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rounded border border-[#64ffda] px-8 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50"
+            >
+              {submitting ? 'Sending...' : 'Send Message'}
+            </button>
+          </div>
+        </form>
       </motion.div>
     </section>
   );
