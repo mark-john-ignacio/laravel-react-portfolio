@@ -15,7 +15,7 @@ This is a **production-ready portfolio website** with admin CMS built using Lara
 
 ## Architecture & Tech Stack
 
-### Backend (Laravel 11+)
+### Backend (Laravel 12+)
 
 - **Framework**: Laravel with Inertia.js adapter
 - **Database**: MySQL/SQLite with Eloquent ORM
