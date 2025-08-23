@@ -6,6 +6,8 @@ import { useScrollSpy } from '@/hooks/useScrollSpy';
 import { TechnologyBadge } from '@/components/technology-badge';
 import React, { Suspense, lazy } from 'react';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { SocialSidebar } from '@/components/SocialSidebar';
+import { EmailSidebar } from '@/components/EmailSidebar';
 
 // Section ids for navigation
 const sections = [
@@ -82,6 +84,8 @@ function PortfolioPage() {
         {!reduceMotion && (
           <motion.div aria-hidden="true" style={{ scaleX }} className="fixed left-0 top-0 z-50 h-1 w-full origin-left bg-[#64ffda]" />
         )}
+  <SocialSidebar />
+  <EmailSidebar />
         <Header theme={theme} onToggleTheme={toggleTheme} />
         <main id="main" className="pt-20" role="main">
           <HeroSection motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }} />
