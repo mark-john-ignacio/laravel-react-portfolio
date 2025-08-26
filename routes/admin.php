@@ -47,4 +47,5 @@ Route::middleware(['auth','verified'])->prefix('admin/portfolio')->name('admin.p
     Route::get('media', [MediaController::class, 'index'])->name('media.index');
     Route::delete('media/{file}', [MediaController::class, 'destroy'])->name('media.destroy');
     Route::post('media/{file}/optimize', [MediaController::class, 'optimize'])->name('media.optimize');
+    Route::post('media/batch-destroy', [MediaController::class, 'destroyBatch'])->name('media.batch-destroy');
 });

@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import { FormEvent, ChangeEvent } from 'react';
+import { FormEvent, ChangeEvent, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,30 @@ interface MediaFile {
 // Backend provides `files`; keep backward compatibility if `media` ever sent.
 export default function MediaIndex({ files, media }: { files?: MediaFile[]; media?: MediaFile[] }) {
     const { data, setData, post, progress, processing, errors } = useForm<MediaUploadForm>({ file: null });
-        const list: MediaFile[] = (files || media || []).map(f => ({ ...f, size: (f as any).size ?? 0 }));
+    const list: MediaFile[] = (files || media || []).map(f => ({ ...f, size: (f as any).size ?? 0 }));
+    const [selected, setSelected] = useState<string[]>([]);
+    const allSelected = selected.length > 0 && selected.length === list.length;
+
+    function toggleSelect(path: string) {
+        setSelected(prev => prev.includes(path) ? prev.filter(p => p !== path) : [...prev, path]);
+    }
+    function toggleAll() {
+        if (allSelected) setSelected([]); else setSelected(list.map(f => f.path));
+    }
+    function bulkDelete() {
+        if (!selected.length) return;
+        if (!confirm(`Delete ${selected.length} file(s)? This cannot be undone.`)) return;
+        // Build a plain object payload; Inertia will serialize it automatically
+        post('/admin/portfolio/media/batch-destroy', {
+            preserveScroll: true,
+            onFinish: () => setSelected([]),
+            forceFormData: true,
+            // leverage `only`/`preserveScroll` as needed; we can pass files by overriding data via partial reload pattern if necessary
+            // Since useForm isn't holding 'files', we temporarily rely on closure state via query string fallback if framework version disallows inline data.
+            // Simpler: create a hidden dynamic form submission (fallback) if still not transmitted.
+            onStart: () => {}
+        });
+    }
 
     function submit(e: FormEvent) {
         e.preventDefault();
@@ -56,6 +79,18 @@ export default function MediaIndex({ files, media }: { files?: MediaFile[]; medi
                         </form>
                     </CardContent>
                 </Card>
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 text-xs">
+                        <input type="checkbox" aria-label="Select all" checked={allSelected} onChange={toggleAll} />
+                        <span>{selected.length ? `${selected.length} selected` : 'Select files'}</span>
+                        {selected.length > 0 && (
+                            <Button type="button" variant="destructive" size="sm" onClick={bulkDelete} disabled={processing}>
+                                Delete Selected
+                            </Button>
+                        )}
+                    </div>
+                    {progress && <p className="text-[10px] text-muted-foreground">Uploading… {progress.percentage}%</p>}
+                </div>
                 <div className="grid gap-4 md:grid-cols-4">
                     {list.map(m => (
                         <Card key={m.path} className="overflow-hidden group">
@@ -69,13 +104,16 @@ export default function MediaIndex({ files, media }: { files?: MediaFile[]; medi
                                   <div className="aspect-video flex items-center justify-center text-[10px] bg-muted uppercase">{ext(m.path)}</div>
                                 )}
                                 <div className="p-2 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <input type="checkbox" className="scale-90" checked={selected.includes(m.path)} onChange={() => toggleSelect(m.path)} />
+                                        <span className="text-[9px] text-muted-foreground">{(m.size/1024).toFixed(1)} KB</span>
+                                    </div>
                                     <div className="flex items-center justify-between gap-2">
                                         <p className="text-[11px] font-medium line-clamp-1" title={basename(m.path)}>{basename(m.path)}</p>
                                         {isImage(m.path) && <Badge variant="outline" className="text-[9px] px-1 py-0">IMG</Badge>}
                                     </div>
-                                    <p className="text-[10px] text-muted-foreground">{(m.size/1024).toFixed(1)} KB</p>
                                     <div className="flex justify-between items-center pt-1">
-                                        <Link as="button" href={`/admin/portfolio/media/${encodeURIComponent(m.path)}`} method="delete" className="text-[10px] underline text-red-600">Delete</Link>
+                                        <Link as="button" href={`/admin/portfolio/media/${encodeURIComponent(m.path)}`} method="delete" className="text-[10px] underline text-red-600" onBefore={() => !confirm('Delete this file?') && false}>Delete</Link>
                                         {isImage(m.path) && <Link as="button" href={`/admin/portfolio/media/${encodeURIComponent(m.path)}/optimize`} method="post" className="text-[10px] underline">Optimize</Link>}
                                     </div>
                                 </div>

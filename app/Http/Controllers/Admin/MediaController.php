@@ -55,4 +55,20 @@ class MediaController extends Controller
         // Stub - real optimization would process image variants for $decoded
         return back()->with('success','Optimization queued');
     }
+
+    public function destroyBatch(Request $request): RedirectResponse
+    {
+        $files = $request->input('files', []);
+        $deleted = [];
+        if (is_array($files)) {
+            foreach ($files as $f) {
+                $decoded = urldecode($f);
+                if (Storage::disk($this->disk)->exists($decoded)) {
+                    Storage::disk($this->disk)->delete($decoded);
+                    $deleted[] = $decoded;
+                }
+            }
+        }
+        return back()->with('success', 'Deleted '.count($deleted).' file(s)')->with('deleted_files', $deleted);
+    }
 }
