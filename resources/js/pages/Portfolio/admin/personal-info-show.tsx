@@ -56,6 +56,10 @@ export default function PersonalInfoShow({ personalInfo }: { personalInfo: any }
                                     <p className="font-medium uppercase tracking-wide text-[11px] mb-0.5">Phone</p>
                                     <p className="text-muted-foreground">{personalInfo.phone}</p>
                                 </div>}
+                                {personalInfo.contact_blurb && <div>
+                                    <p className="font-medium uppercase tracking-wide text-[11px] mb-0.5">Contact Blurb</p>
+                                    <p className="text-muted-foreground whitespace-pre-line leading-relaxed text-[11px]">{personalInfo.contact_blurb}</p>
+                                </div>}
                             </CardContent>
                         </Card>
                         <Card>
