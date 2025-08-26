@@ -26,6 +26,10 @@ Run tests:
 php artisan test
 ```
 
+## Authentication Notes
+
+User self‑registration is disabled. The `/register` route has been removed and a regression test (`tests/Feature/Auth/RegistrationDisabledTest.php`) enforces a 404 response. Create users manually via database seeding or artisan tinker if additional accounts are required.
+
 ## Next Improvements
 - Expose categories visually for tech stack (grouping UI).
 - Add OpenGraph image generation (dynamic OG card).
