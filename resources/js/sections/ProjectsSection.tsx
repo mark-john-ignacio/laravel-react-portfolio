@@ -1,22 +1,31 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState } from 'react';
 import { useInView, motion } from 'framer-motion';
 import { Reveal, RevealGroup } from '@/components/reveal';
-import { PROJECTS, ProjectItem } from '@/data/projects';
+// Dynamic projects now passed via props
+export interface ProjectItemData {
+  id: string;
+  slug?: string;
+  title: string;
+  description: string;
+  longDescription?: string;
+  tech: string[];
+  links?: { github?: string; demo?: string };
+  featured?: boolean;
+  image?: string | null;
+  gallery?: string[];
+  readMinutes?: number | null;
+}
 import { Section, SectionHeading } from '@/components/Section';
 import { ProjectDialog } from '@/components/ProjectDialog';
 
-export interface ProjectsSectionProps {
-  id?: string;
-  headingIndex?: number;
-}
+export interface ProjectsSectionProps { id?: string; headingIndex?: number; featured: ProjectItemData[]; secondary: ProjectItemData[]; }
 
-export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSectionProps) {
+export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secondary }: ProjectsSectionProps) {
   const ref = useRef<HTMLElement | null>(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
   const [showAll, setShowAll] = useState(false);
-  const [activeProject, setActiveProject] = useState<ProjectItem | null>(null);
-  const featured = useMemo(() => PROJECTS.filter((p) => p.featured), []);
-  const secondary = useMemo(() => PROJECTS.filter((p) => !p.featured), []);
+  const [activeProject, setActiveProject] = useState<ProjectItemData | null>(null);
+  // Data already separated server-side
 
   return (
     <Section as="section" ref={ref} aria-labelledby={id} id={id} className="pt-24">
@@ -40,7 +49,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSecti
             >
               <div className="aspect-video w-full overflow-hidden rounded bg-[#112240] ring-1 ring-[#64ffda]/30">
                 <img
-                  src={p.image}
+                  src={p.image || '/images/placeholders/feature-1.svg'}
                   alt={p.title}
                   loading="lazy"
                   className="h-full w-full object-cover opacity-80 transition duration-300 group-hover:opacity-100 group-hover:scale-[1.02]"
@@ -93,7 +102,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3 }: ProjectsSecti
               className="group relative flex flex-col rounded-lg bg-[#112240] p-6 ring-1 ring-[#233554] hover:-translate-y-1 hover:ring-[#64ffda] transition"
             >
               <div className="mb-3 aspect-video w-full overflow-hidden rounded bg-[#0f223d]">
-                <img src={p.image} alt={p.title} loading="lazy" className="h-full w-full object-cover opacity-80 group-hover:opacity-100" />
+                <img src={p.image || '/images/placeholders/grid-1.svg'} alt={p.title} loading="lazy" className="h-full w-full object-cover opacity-80 group-hover:opacity-100" />
               </div>
               <div className="mb-2 flex items-start justify-between">
                 <h4 className="text-lg font-semibold text-[#e6f1ff] group-hover:text-[#64ffda] transition-colors">

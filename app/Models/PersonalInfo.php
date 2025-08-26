@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class PersonalInfo extends Model
 {
@@ -33,6 +34,13 @@ class PersonalInfo extends Model
     public static function instance(): self
     {
         return static::first() ?? static::create(['name' => 'Your Name']);
+    }
+
+    protected static function booted()
+    {
+        $flush = function () { Cache::forget('public_portfolio_payload_v1'); };
+        static::saved($flush);
+        static::deleted($flush);
     }
 
     public function getFullNameAttribute(): string

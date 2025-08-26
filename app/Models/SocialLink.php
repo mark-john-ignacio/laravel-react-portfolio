@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class SocialLink extends Model
 {
@@ -31,5 +32,12 @@ class SocialLink extends Model
             'linkedin' => '<svg class="size-4" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 0 0 5.001 2.5 2.5 0 0 0 0-5Zm.02 4.75H2V21h3V8.25ZM8 8.25V21h3v-6.5c0-1.381.843-2.5 2.25-2.5s2.25 1.119 2.25 2.5V21h3v-7.25c0-2.77-1.795-4.5-4.25-4.5-1.701 0-2.89.75-3.5 1.62V8.25H8Z"/></svg>',
         ];
         return $icons[$platform] ?? '<span class="icon icon-'.e($platform).'" />';
+    }
+
+    protected static function booted()
+    {
+        $flush = function () { Cache::forget('public_portfolio_payload_v1'); };
+        static::saved($flush);
+        static::deleted($flush);
     }
 }

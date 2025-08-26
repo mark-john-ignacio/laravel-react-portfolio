@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class Project extends Model
 {
@@ -69,6 +70,10 @@ class Project extends Model
                 $project->slug = $slug;
             }
         });
+
+        $flush = function () { Cache::forget('public_portfolio_payload_v1'); };
+        static::saved($flush);
+        static::deleted($flush);
     }
 
     public function getCoverUrlAttribute(): ?string

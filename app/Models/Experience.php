@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class Experience extends Model
 {
@@ -38,5 +39,12 @@ class Experience extends Model
     {
         if ($value !== null) return (bool)$value;
         return $this->end_date === null || $this->end_date->isFuture();
+    }
+
+    protected static function booted()
+    {
+        $flush = function () { Cache::forget('public_portfolio_payload_v1'); };
+        static::saved($flush);
+        static::deleted($flush);
     }
 }
