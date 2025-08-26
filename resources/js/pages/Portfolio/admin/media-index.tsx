@@ -22,7 +22,11 @@ export default function MediaIndex({ files, media }: { files?: MediaFile[]; medi
 
     function submit(e: FormEvent) {
         e.preventDefault();
-        post('/admin/portfolio/media');
+        if (!data.file) return; // no file selected
+        post('/admin/portfolio/media/upload', {
+            forceFormData: true,
+            onSuccess: () => setData('file', null)
+        });
     }
 
     return (
