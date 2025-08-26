@@ -12,12 +12,24 @@ class ProjectSeeder extends Seeder
 {
     public function run(): void
     {
-        // Disable foreign key checks to allow truncation
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Project::truncate();
-        ProjectCategory::truncate();
-        // Re-enable foreign key checks
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $driver = DB::getDriverName();
+        if ($driver === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            Project::truncate();
+            ProjectCategory::truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        } elseif ($driver === 'sqlite') {
+            // SQLite requires using PRAGMA; need to wrap truncation in foreign key off/on
+            DB::statement('PRAGMA foreign_keys = OFF');
+            Project::query()->delete(); // truncate not resetting autoincrement fully; acceptable for seeding
+            ProjectCategory::query()->delete();
+            DB::statement("DELETE FROM sqlite_sequence WHERE name IN ('projects','project_categories')");
+            DB::statement('PRAGMA foreign_keys = ON');
+        } else {
+            // Fallback: try standard deletes
+            Project::query()->delete();
+            ProjectCategory::query()->delete();
+        }
 
         $categories = [
             ['name' => 'Cloud', 'slug' => 'cloud', 'description' => 'Cloud & serverless projects', 'color' => '#0ea5e9'],
