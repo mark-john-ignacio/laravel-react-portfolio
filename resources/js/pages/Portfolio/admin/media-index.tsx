@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 
-type MediaUploadForm = { file: File | null };
+type MediaUploadForm = { file: File | null; files: string[] };
 interface MediaFile {
     path: string;
     url: string;
@@ -17,7 +17,7 @@ interface MediaFile {
 }
 // Backend provides `files`; keep backward compatibility if `media` ever sent.
 export default function MediaIndex({ files, media }: { files?: MediaFile[]; media?: MediaFile[] }) {
-    const { data, setData, post, progress, processing, errors } = useForm<MediaUploadForm>({ file: null });
+    const { data, setData, post, progress, processing, errors, transform } = useForm<MediaUploadForm>({ file: null, files: [] });
     const list: MediaFile[] = (files || media || []).map(f => ({ ...f, size: (f as any).size ?? 0 }));
     const [selected, setSelected] = useState<string[]>([]);
     const allSelected = selected.length > 0 && selected.length === list.length;
@@ -31,15 +31,16 @@ export default function MediaIndex({ files, media }: { files?: MediaFile[]; medi
     function bulkDelete() {
         if (!selected.length) return;
         if (!confirm(`Delete ${selected.length} file(s)? This cannot be undone.`)) return;
-        // Build a plain object payload; Inertia will serialize it automatically
+        setData('files', selected);
+        transform(original => ({ ...original, files: selected }));
         post('/admin/portfolio/media/batch-destroy', {
             preserveScroll: true,
-            onFinish: () => setSelected([]),
             forceFormData: true,
-            // leverage `only`/`preserveScroll` as needed; we can pass files by overriding data via partial reload pattern if necessary
-            // Since useForm isn't holding 'files', we temporarily rely on closure state via query string fallback if framework version disallows inline data.
-            // Simpler: create a hidden dynamic form submission (fallback) if still not transmitted.
-            onStart: () => {}
+            onFinish: () => {
+                setSelected([]);
+                setData('files', []);
+                transform(o => o);
+            }
         });
     }
 
