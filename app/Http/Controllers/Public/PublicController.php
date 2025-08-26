@@ -7,6 +7,7 @@ use App\Models\PersonalInfo;
 use App\Models\SocialLink;
 use App\Models\Experience;
 use App\Models\Project;
+use App\Models\TechStack;
 use Inertia\Response;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Cache;
@@ -90,6 +91,12 @@ class PublicController extends Controller
             $canonical = url('/');
             $ogImage = $info->profile_image_url;
 
+            $tech = TechStack::ordered()->get(['name','category','is_featured','sort_order'])->map(fn($t) => [
+                'name' => $t->name,
+                'category' => $t->category,
+                'featured' => $t->is_featured,
+            ]);
+
             return [
                 'personalInfo' => [
                     'name' => $info->name,
@@ -116,7 +123,9 @@ class PublicController extends Controller
                     'canonical' => $canonical,
                     'og_image' => $ogImage,
                 ],
-                'tech' => [ 'Laravel','React','TypeScript','Tailwind CSS','Inertia.js','shadcn/ui','PHP','MySQL','AWS','JavaScript','Vite','Docker','Git' ],
+                // Provide both flat list (legacy) and structured tech items
+                'tech' => $tech->pluck('name')->values(),
+                'tech_items' => $tech,
             ];
         });
 

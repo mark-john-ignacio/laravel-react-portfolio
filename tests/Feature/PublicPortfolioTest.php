@@ -47,3 +47,16 @@ it('invalidates public portfolio cache when a project updates', function () {
         ->merge(collect($props['projects']['secondary'])->pluck('title'));
     expect($allTitles->contains('Updated Title'))->toBeTrue();
 });
+
+it('serves dynamic tech stack from database and invalidates on change', function () {
+    $first = \App\Models\TechStack::factory()->create(['name' => 'ZetaTech']);
+    // Warm cache
+    $this->get('/')->assertStatus(200);
+
+    // Update tech stack entry (should flush cache via model event)
+    $first->update(['name' => 'OmegaTech']);
+
+    $page = $this->get('/')->viewData('page');
+    $props = data_get($page, 'props');
+    expect($props['tech'])->toContain('OmegaTech');
+});
