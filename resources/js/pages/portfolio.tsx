@@ -28,10 +28,11 @@ interface PortfolioPageProps {
   projects: { featured: any[]; secondary: any[] };
   meta: { description: string; canonical: string; og_image?: string | null };
   tech: string[];
+  tech_items?: { name: string; category?: string; featured?: boolean }[];
 }
 
 function PortfolioPage(props: PortfolioPageProps) {
-  const { personalInfo, socialLinks, experiences, projects, meta, tech } = props as PortfolioPageProps;
+  const { personalInfo, socialLinks, experiences, projects, meta, tech, tech_items } = props as PortfolioPageProps;
   const reduceMotion = typeof window !== 'undefined' ? usePrefersReducedMotion() : false;
   // Variants adjusted based on reduced motion
   const adaptiveContainer = reduceMotion ? {} : containerVariants;
@@ -89,7 +90,12 @@ function PortfolioPage(props: PortfolioPageProps) {
             tagline={personalInfo?.hero_tagline || personalInfo?.tagline}
             blurb={personalInfo?.bio_short}
           />
-          <AboutSection bioShort={personalInfo?.bio_short} bioLong={personalInfo?.bio_long} tech={tech} profileImage={personalInfo?.profile_image_url} />
+          <AboutSection
+            bioShort={personalInfo?.bio_short}
+            bioLong={personalInfo?.bio_long}
+            tech={(tech_items?.length ? tech_items.filter(t => t.featured).map(t => t.name) : tech) || []}
+            profileImage={personalInfo?.profile_image_url}
+          />
           {experiences?.length > 0 && <ExperienceSection experiences={experiences} />}
           <Suspense fallback={<div className="px-6 py-24 md:px-24" aria-busy="true">Loading projects…</div>}>
             <LazyProjects />
