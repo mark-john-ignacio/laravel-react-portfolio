@@ -41,7 +41,8 @@
 
         @routes
         @viteReactRefresh
-        @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+    {{-- Only include the single Inertia application entry. Per-page entries are resolved via dynamic imports in app.tsx. --}}
+    @vite(['resources/js/app.tsx'])
         @inertiaHead
         @php($analyticsId = config('analytics.id'))
         @if($analyticsId)

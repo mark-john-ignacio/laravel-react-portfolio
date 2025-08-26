@@ -35,5 +35,43 @@ User self‑registration is disabled. The `/register` route has been removed and
 - Add OpenGraph image generation (dynamic OG card).
 - Implement project detail deep-linking using slugs (modal routing).
 
+## Troubleshooting
+
+### Vite Manifest Missing Page Entry
+If you see an error similar to:
+
+```
+Unable to locate file in Vite manifest: resources/js/pages/portfolio.tsx
+```
+
+Cause: The root Blade template previously attempted to load each Inertia page component directly:
+
+```
+@vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+```
+
+In production builds only the main entry (`resources/js/app.tsx`) is an explicit entry in `public/build/manifest.json`; individual pages are discovered at runtime via:
+
+```ts
+resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx'))
+```
+
+Fix: Remove the per‑page `@vite` reference and keep only:
+
+```
+@vite(['resources/js/app.tsx'])
+```
+
+Then rebuild and clear caches:
+
+```
+npm run build
+php artisan view:clear
+php artisan config:clear
+php artisan route:clear
+```
+
+This also eliminates case-sensitivity issues (e.g. `Portfolio/` vs lowercase) on Linux deployments.
+
 ## License
 MIT
