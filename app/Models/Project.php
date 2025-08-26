@@ -24,6 +24,11 @@ class Project extends Model
         'view_count' => 'integer',
     ];
 
+    protected $appends = [
+        'cover_url',
+        'gallery_urls',
+    ];
+
     public function categories()
     {
         return $this->belongsToMany(ProjectCategory::class);
@@ -64,5 +69,17 @@ class Project extends Model
                 $project->slug = $slug;
             }
         });
+    }
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        return $this->image_url ? asset('storage/'.$this->image_url) : null;
+    }
+
+    public function getGalleryUrlsAttribute(): array
+    {
+        return array_map(function ($path) {
+            return asset('storage/'.$path);
+        }, $this->gallery_images ?? []);
     }
 }

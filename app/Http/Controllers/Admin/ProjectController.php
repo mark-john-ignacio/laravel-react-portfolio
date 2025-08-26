@@ -88,11 +88,18 @@ class ProjectController extends Controller
             $data['image_url'] = $file->storeAs('portfolio/projects/cover', $name, 'public');
         }
 
-        // Existing gallery removal (optimistic UI sends removed_gallery JSON)
+        // Existing gallery removal (frontend may send removed_gallery as array or JSON string)
         $existing = $project->gallery_images ?? [];
-        if ($removedJson = $request->input('removed_gallery')) {
-            $removed = json_decode($removedJson, true) ?: [];
-            if (is_array($removed) && $removed) {
+        $removedInput = $request->input('removed_gallery');
+        if ($removedInput) {
+            if (is_string($removedInput)) {
+                $removed = json_decode($removedInput, true) ?: [];
+            } elseif (is_array($removedInput)) {
+                $removed = $removedInput;
+            } else {
+                $removed = [];
+            }
+            if ($removed) {
                 foreach ($removed as $path) {
                     if (in_array($path, $existing, true) && Storage::disk('public')->exists($path)) {
                         Storage::disk('public')->delete($path);

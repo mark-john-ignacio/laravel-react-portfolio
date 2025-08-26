@@ -29,6 +29,7 @@ type ProjectForm = {
     is_published: boolean;
     sort_order: number;
     categories: number[]; // renamed from project_category_ids
+    removed_gallery: string[]; // paths of removed existing gallery images
 };
 
 function buildUrl(path?: string | null) {
@@ -55,6 +56,7 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
         is_published: project.is_published || false,
         sort_order: project.sort_order ?? 0,
         categories: project.categories?.map((c: any) => c.id) || [],
+        removed_gallery: [],
     });
 
     const [featureInput, setFeatureInput] = useState('');
@@ -88,7 +90,11 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
     function removeExistingImage(img: string) {
         if (!confirm('Remove this image from gallery?')) return;
         setExistingGallery(prev => prev.filter(i => i !== img));
-        setRemovedGallery(prev => [...prev, img]);
+        setRemovedGallery(prev => {
+            const next = [...prev, img];
+            setData('removed_gallery', next); // keep inertia state in sync
+            return next;
+        });
     }
 
     function slugify(value: string) {
@@ -114,7 +120,7 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
 
     function submit(e: FormEvent) {
         e.preventDefault();
-        transform(original => ({ ...original, gallery: galleryFiles }));
+        transform(original => ({ ...original, gallery: galleryFiles, removed_gallery: removedGallery }));
         post(`/admin/portfolio/projects/${project.id}`, {
             forceFormData: true,
             onFinish: () => transform(d => d)
@@ -301,9 +307,7 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
                                             })}
                                         </div>
                                     )}
-                                    {removedGallery.length > 0 && (
-                                        <input type="hidden" name="removed_gallery" value={JSON.stringify(removedGallery)} />
-                                    )}
+                                    {/* removed_gallery now sent via inertia state; no hidden input needed */}
                                     {galleryFiles.length > 0 && (
                                         <div className="flex flex-wrap gap-3 pt-3">
                                             {galleryFiles.map((file, i) => {
