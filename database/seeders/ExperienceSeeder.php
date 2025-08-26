@@ -15,15 +15,16 @@ class ExperienceSeeder extends Seeder
             [
                 'company' => 'HRWEB Inc.',
                 'position' => 'Junior Programmer',
-                'location' => 'Remote / Philippines',
+                'location' => 'General Trias, Cavite',
                 'start_date' => '2024-03-01',
                 'end_date' => null,
                 'is_current' => true,
                 'description' => 'Designing and implementing financial application modules with a focus on performance and reliability.',
                 'achievements' => [
-                    'Improved platform stability by 30% through refactoring and observability.',
-                    'Implemented secure authentication and authorization layers.',
-                    'Delivered responsive UI components with shadcn/ui and Tailwind CSS.'
+                    'Maintained and customized a financial accounting system to meet diverse client needs, including tax reporting and compliance modules (e.g., BIR forms)',
+                    'Developed and integrated custom POS solutions and accounting workflows tailored to business operations.',
+                    'Implemented e-commerce integrations (e.g., WooCommerce) for seamless financial and inventory synchronization.',
+                    'Enhanced system reliability and scalability through performance optimization and modular design.'
                 ],
                 'technologies' => ['Laravel','React','Tailwind CSS','TypeScript','Inertia.js','Vite'],
                 'company_url' => 'https://example.com/hrweb',
@@ -39,9 +40,10 @@ class ExperienceSeeder extends Seeder
                 'is_current' => false,
                 'description' => 'Supported deployment and monitoring of AWS cloud infrastructure.',
                 'achievements' => [
-                    'Automated infrastructure tasks with Python scripts.',
-                    'Implemented CloudWatch monitoring dashboards.',
-                    'Applied AWS Well-Architected Framework principles.'
+                    'Automated routine infrastructure tasks using Python and Bash, improving efficiency of cloud operations.',
+                    'Built and deployed CloudWatch dashboards to monitor system health and performance.',
+                    'Applied AWS Well-Architected Framework principles to support secure and scalable deployments.',
+                    'Achieved AWS Certified Cloud Practitioner credential, demonstrating foundational cloud expertise.'
                 ],
                 'technologies' => ['AWS','Python','Linux','Bash','RDS','S3','EC2'],
                 'company_url' => 'https://aws.amazon.com',
@@ -59,7 +61,7 @@ class ExperienceSeeder extends Seeder
                 'achievements' => [
                     'Maintained workstation fleet and performed OS/software installations.',
                     'Diagnosed and resolved network connectivity issues.',
-                    'Improved support response times with ticket triage process.'
+                    'Developed server architecture improvements to enhance reliability.',
                 ],
                 'technologies' => ['Windows','Networking','Hardware','Scripting'],
                 'company_url' => null,

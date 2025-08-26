@@ -30,14 +30,14 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ bioShort, bioLong, t
           </RevealGroup>
         </div>
         <div className="relative mx-auto max-w-xs">
-          <Reveal as="div" y={40} duration={0.9} className="group relative">
+          {/* <Reveal as="div" y={40} duration={0.9} className="group relative">
             <div className="rounded bg-[#64ffda]/10 p-2 backdrop-blur">
               <div className="aspect-square w-full overflow-hidden rounded bg-[#112240] ring-1 ring-[#64ffda]/30 flex items-center justify-center">
                 <img src={profileImage || '/images/profile-placeholder.svg'} alt="Profile image" className="h-full w-full object-cover mix-blend-normal opacity-95 transition duration-500 group-hover:scale-[1.03]" loading="lazy" decoding="async" />
               </div>
             </div>
             <div className="pointer-events-none absolute inset-0 rounded border border-[#64ffda] opacity-20 transition group-hover:opacity-40" />
-          </Reveal>
+          </Reveal> */}
         </div>
       </div>
     </Section>
