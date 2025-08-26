@@ -48,7 +48,7 @@ function PortfolioPage(props: PortfolioPageProps) {
         {personalInfo?.name && <meta name="author" content={personalInfo.name} />}
         <meta name="theme-color" content="#0a192f" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={`${personalInfo?.name ?? 'Portfolio'} | Portfolio"`} />
+    <meta property="og:title" content={`${personalInfo?.name ?? 'Portfolio'} | Portfolio`} />
         <meta property="og:description" content={meta?.description || ''} />
         <meta property="og:url" content={meta?.canonical || ''} />
         {meta?.og_image && <meta property="og:image" content={meta.og_image} />}
@@ -98,9 +98,9 @@ function PortfolioPage(props: PortfolioPageProps) {
           />
           {experiences?.length > 0 && <ExperienceSection experiences={experiences} />}
           <Suspense fallback={<div className="px-6 py-24 md:px-24" aria-busy="true">Loading projects…</div>}>
-            <LazyProjects />
+             <LazyProjects projects={projects} />
           </Suspense>
-          <ContactSection />
+          <ContactSection email={personalInfo?.email} blurb={personalInfo?.contact_blurb} />
           <Footer />
         </main>
       </div>

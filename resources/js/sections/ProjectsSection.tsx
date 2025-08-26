@@ -32,6 +32,11 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
       <SectionHeading index={headingIndex} id={`${id}-heading`}>
         Some Things I've Built
       </SectionHeading>
+      {featured.length === 0 && secondary.length === 0 && (
+        <div className="mt-8 rounded border border-[#233554] bg-[#112240] p-8 text-center text-sm text-[#8892b0]">
+          <p>No projects are published yet. Mark some projects as published (and optionally featured) in the admin to display them here.</p>
+        </div>
+      )}
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}

@@ -106,6 +106,7 @@ class PublicController extends Controller
                     'hero_tagline' => $info->hero_tagline,
                     'bio_short' => $info->bio_short,
                     'bio_long' => $info->bio_long,
+                    'contact_blurb' => $info->contact_blurb,
                     'email' => $info->email,
                     'location' => $info->location,
                     'availability_status' => $info->availability_status,

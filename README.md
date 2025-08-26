@@ -13,12 +13,13 @@ The public portfolio page (`/`) is fully data‑driven. Content comes from the f
 | Experience timeline | `Experience` | Ordered by most recent `start_date` then `sort_order`. Achievements array populates bullet list; falls back to description sentences. |
 | Projects (featured + grid) | `Project` | Uses scopes `published()` and `ordered()`. Featured separated server‑side. Includes cover + gallery URLs. |
 | Tech stack | `TechStack` | Fully dynamic; ordered by `sort_order`, exposes flat list + structured items. |
+| Contact section (email + blurb) | `PersonalInfo` | Uses `email` & new `contact_blurb` field for dynamic CTA copy. |
 
 To update content, edit the respective records in the admin dashboard—no code changes required. The Inertia controller (`App\\Http\\Controllers\\Public\\PublicController@index`) assembles a normalized prop payload consumed by React components (hero, about, experience, projects, sidebars) instead of prior static files under `resources/js/data`.
 
 ## Testing
 
-A feature test (`tests/Feature/PublicPortfolioTest.php`) asserts the root route returns the expected Inertia prop keys.
+A feature test (`tests/Feature/PublicPortfolioTest.php`) asserts the root route returns the expected Inertia prop keys (including `personalInfo.contact_blurb`).
 
 Run tests:
 ```

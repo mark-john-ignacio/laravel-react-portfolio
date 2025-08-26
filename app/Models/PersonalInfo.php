@@ -15,7 +15,7 @@ class PersonalInfo extends Model
 
     protected $fillable = [
         'name','title','tagline','email','phone','location','bio_short','bio_long',
-        'hero_greeting','hero_tagline','availability_status','resume_url','profile_image_url'
+        'hero_greeting','hero_tagline','availability_status','resume_url','profile_image_url','contact_blurb'
     ];
 
     // Example for potential JSON fields (none currently defined but placeholder for future)

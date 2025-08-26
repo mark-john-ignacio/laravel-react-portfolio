@@ -28,6 +28,7 @@ it('returns portfolio inertia page with expected props', function () {
     $props = data_get($page, 'props');
     expect($props)->toHaveKeys(['personalInfo','socialLinks','experiences','projects','meta','tech']);
     expect($props['personalInfo'])->toBeArray();
+    expect($props['personalInfo'])->toHaveKey('contact_blurb');
     expect($props['projects'])->toHaveKeys(['featured','secondary']);
 });
 
