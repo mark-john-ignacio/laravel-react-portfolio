@@ -73,5 +73,10 @@ php artisan route:clear
 
 This also eliminates case-sensitivity issues (e.g. `Portfolio/` vs lowercase) on Linux deployments.
 
+## Branding
+
+### Favicon
+Updated the favicon to a minimal dark navy tile (`#0a192f`) with a teal accent monogram `M` (`#64ffda`) to better align with the portfolio color palette (navy background + teal highlight). The SVG now lives in `public/favicon.svg` and scales cleanly at low resolutions.
+
 ## License
 MIT
