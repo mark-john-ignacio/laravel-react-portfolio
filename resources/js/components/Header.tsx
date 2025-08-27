@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SECTIONS } from '@/data/sections';
+import AppLogoIcon from '@/components/app-logo-icon';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
 import { useHideOnScroll } from '@/hooks/useHideOnScroll';
 
@@ -23,7 +24,10 @@ export const Header: React.FC = () => {
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 md:px-12 py-4 backdrop-blur bg-[#0a192f]/80 border-b border-[#112240]"
       >
-        <div className="text-[#64ffda] font-mono text-sm tracking-wider">MJ</div>
+        <a href="#top" className="group flex items-center focus:outline-none" aria-label="Home">
+          <AppLogoIcon className="h-8 w-8 transition-transform duration-300 group-hover:scale-105" />
+          <span className="sr-only">Home</span>
+        </a>
         <nav aria-label="Primary navigation" className="hidden md:flex items-center gap-8">
           {SECTIONS.map((s, i) => {
             const isActive = active === s.id;

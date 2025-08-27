@@ -78,5 +78,8 @@ This also eliminates case-sensitivity issues (e.g. `Portfolio/` vs lowercase) on
 ### Favicon
 Updated the favicon to a minimal dark navy tile (`#0a192f`) with a teal accent monogram `M` (`#64ffda`) to better align with the portfolio color palette (navy background + teal highlight). The SVG now lives in `public/favicon.svg` and scales cleanly at low resolutions.
 
+### Header Logo
+The application header now uses the same monogram style as the favicon for visual consistency (`AppLogoIcon`). The logo is a teal `M` inside a rounded navy tile with an accent stroke, paired with a monospace brand label `PORTFOLIO` in the header.
+
 ## License
 MIT
