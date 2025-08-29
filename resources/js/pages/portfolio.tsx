@@ -77,10 +77,16 @@ function PortfolioPage(props: PortfolioPageProps) {
   <a href="#content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] rounded bg-[#64ffda] px-4 py-2 font-mono text-xs text-[#0a192f]">Skip to content</a>
       <div className={`min-h-screen font-inter selection:bg-[#64ffda]/20 ${rootClasses}`}>
         {!reduceMotion && (
-          <motion.div aria-hidden="true" style={{ scaleX }} className="fixed left-0 top-0 z-50 h-1 w-full origin-left bg-[#64ffda]" />
+          <motion.div aria-hidden="true" style={{ scaleX }} className="fixed left-0 top-0 z-50 hidden h-1 w-full origin-left bg-[#64ffda] sm:block" />
         )}
-        <SocialSidebar links={socialLinks} />
-        {personalInfo?.email && <EmailSidebar email={personalInfo.email} />}
+        <div className="hidden lg:block">
+          <SocialSidebar links={socialLinks} />
+        </div>
+        {personalInfo?.email && (
+          <div className="hidden lg:block">
+            <EmailSidebar email={personalInfo.email} />
+          </div>
+        )}
         <Header />
   <main id="content" className="pt-20" role="main">
           <HeroSection

@@ -39,13 +39,17 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
   return (
     <Section id="experience" aria-labelledby="experience-heading">
       <SectionHeading id="experience-heading" index={headingIndex}>Where I've Worked</SectionHeading>
-      <div className="grid gap-10 md:grid-cols-[220px_1fr]">
-        <div role="tablist" aria-label="Job history" className="relative">
-          <ul className="flex md:flex-col overflow-x-auto md:overflow-visible -mx-2 md:mx-0 pb-2 md:pb-0 pr-4 md:pr-0">
+      <div className="grid gap-10 md:grid-cols-[220px_1fr] overflow-hidden">
+        {/* Tab list column */}
+        <div role="tablist" aria-label="Job history" className="relative overflow-hidden">
+          {/* Wrap horizontal scroll in its own container to avoid affecting body */}
+          <ul className="flex md:flex-col overflow-x-auto md:overflow-visible px-1 pb-2 md:pb-0 md:px-0 pr-4 md:pr-0 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none]" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {/* Hide scrollbar visually (still accessible) */}
+            <style>{`.hide-scrollbar::-webkit-scrollbar{display:none}`}</style>
             {experiences.map((exp, i) => {
               const isActive = i === activeIndex;
               return (
-                <li key={exp.company} className="px-2 md:px-0">
+                <li key={exp.company} className="shrink-0 md:shrink md:w-full pr-1 md:pr-0">
                   <button
                     ref={(el) => { tabRefs.current[i] = el; }}
                     role="tab"
@@ -55,7 +59,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
                     tabIndex={isActive ? 0 : -1}
                     onClick={() => setActiveIndex(i)}
                     onKeyDown={onKeyDown}
-                    className={`w-full border-l md:border-l-2 pl-4 pr-8 py-2 text-left font-mono text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50 ${isActive ? 'border-[#64ffda] text-[#64ffda] bg-[#112240]' : 'border-[#233554] text-[#8892b0] hover:text-[#64ffda]'}`}
+                    className={`whitespace-nowrap md:whitespace-normal w-full border-l md:border-l-2 pl-4 pr-6 md:pr-8 py-2 text-left font-mono text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#64ffda]/50 ${isActive ? 'border-[#64ffda] text-[#64ffda] bg-[#112240]' : 'border-[#233554] text-[#8892b0] hover:text-[#64ffda]'}`}
                   >
                     {exp.company}
                   </button>

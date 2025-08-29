@@ -16,8 +16,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ bioShort, bioLong, t
   return (
     <Section aria-labelledby="about" id="about">
   <SectionHeading id="about-heading" index={headingIndex}>About Me</SectionHeading>
-      <div className="grid gap-12 md:grid-cols-[3fr_2fr]">
-        <div className="space-y-5 text-[#8892b0] leading-relaxed">
+      <div className="grid gap-10 md:gap-12 md:grid-cols-[3fr_2fr]">
+        <div className="space-y-5 text-[#8892b0] leading-relaxed text-sm sm:text-base">
           <RevealGroup as="div" className="space-y-5" stagger={0.18} y={28} once>
             {/* {bioShort && <Reveal as="p">{bioShort}</Reveal>} */}
             {bioLong && <Reveal as="p">{bioLong}</Reveal>}
@@ -29,7 +29,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ bioShort, bioLong, t
             </Reveal>
           </RevealGroup>
         </div>
-        <div className="relative mx-auto max-w-xs">
+  <div className="relative mx-auto max-w-[220px] sm:max-w-xs w-full mt-4 md:mt-0">
           {/* <Reveal as="div" y={40} duration={0.9} className="group relative">
             <div className="rounded bg-[#64ffda]/10 p-2 backdrop-blur">
               <div className="aspect-square w-full overflow-hidden rounded bg-[#112240] ring-1 ring-[#64ffda]/30 flex items-center justify-center">
