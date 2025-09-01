@@ -22,7 +22,7 @@ export const Header: React.FC = () => {
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: hidden ? -80 : 0, opacity: hidden ? 0 : 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 md:px-12 py-4 backdrop-blur bg-[#0a192f]/80 border-b border-[#112240]"
+        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 sm:px-6 md:px-12 py-4 backdrop-blur bg-[#0a192f]/80 border-b border-[#112240] w-full"
       >
         <a href="#top" className="group flex items-center focus:outline-none" aria-label="Home">
           <AppLogoIcon className="h-8 w-8 transition-transform duration-300 group-hover:scale-105" />

@@ -6,7 +6,7 @@ interface EmailSidebarProps { email: string; }
 export const EmailSidebar: React.FC<EmailSidebarProps> = ({ email }) => {
   const reduceMotion = useReducedMotion();
   return (
-    <div className="pointer-events-none hidden md:flex fixed right-12 bottom-4 z-40 flex-col items-center">
+    <div className="pointer-events-none hidden lg:flex fixed right-8 xl:right-12 bottom-4 z-40 flex-col items-center">
       {reduceMotion ? (
         <>
           <a

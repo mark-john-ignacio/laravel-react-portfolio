@@ -21,7 +21,7 @@ interface SocialSidebarProps { links: SocialLinkItem[]; }
 export const SocialSidebar: React.FC<SocialSidebarProps> = ({ links }) => {
   const reduceMotion = useReducedMotion();
   return (
-    <div className="pointer-events-none hidden md:flex fixed left-10 bottom-0 z-40 flex-col items-center">
+    <div className="pointer-events-none hidden lg:flex fixed left-6 xl:left-10 bottom-0 z-40 flex-col items-center">
       <motion.ul
         className="pointer-events-auto flex flex-col items-center gap-5"
         initial={reduceMotion ? undefined : 'hidden'}

@@ -13,8 +13,8 @@ type PolymorphicProps<E extends ElementType> = {
 export const Section = React.forwardRef(<E extends ElementType = 'section'>(props: PolymorphicProps<E>, ref: React.Ref<Element>) => {
   const { as, noPadding, className = '', id, ...rest } = props;
   const Component = (as || 'section') as ElementType;
-  // Add a centered, responsive container and safe horizontal padding for mobile.
-  return <Component ref={ref} id={id} className={`w-full mx-auto max-w-6xl ${noPadding ? '' : SECTION_PADDING} px-5 sm:px-8 ${className}`} {...rest} />;
+  // Add proper mobile-first responsive container with safe maximum width and overflow handling
+  return <Component ref={ref} id={id} className={`w-full max-w-7xl mx-auto ${noPadding ? '' : SECTION_PADDING} ${className}`} {...rest} />;
 }) as <E extends ElementType = 'section'>(props: PolymorphicProps<E> & { ref?: React.Ref<Element> }) => React.ReactElement | null;
 
 interface SectionHeadingProps {
