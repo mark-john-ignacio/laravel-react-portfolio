@@ -93,7 +93,12 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'laravel',
+            /*
+             * Use DB_SCHEMA (search_path) for Postgres. Many hosted Postgres
+             * instances require the `public` schema or a provided schema name.
+             * Default to 'public' when DB_SCHEMA is not provided in .env.
+             */
+            'search_path' => env('DB_SCHEMA', 'public'),
             'sslmode' => 'prefer',
         ],
 

@@ -48,7 +48,11 @@ class HandleInertiaRequests extends Middleware
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
-                'location' => $request->url(),
+                // Use the configured app URL as the client location/origin. This
+                // ensures generated Ziggy routes use the correct scheme (https)
+                // in environments like Vercel where the application may be
+                // behind proxies and the incoming request URL might be http.
+                'location' => config('app.url'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
