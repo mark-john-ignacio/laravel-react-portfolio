@@ -1,46 +1,67 @@
-deploy:
-  needs: test
-  runs-on: ubuntu-latest
-  if: github.ref == 'refs/heads/main'
-  steps:
-    - uses: actions/checkout@v4
+name: CI & Atomic Deploy
 
-    - name: Install rsync & ssh
-      run: sudo apt-get update && sudo apt-get install -y rsync
+on:
+  push:
+    branches: [ "main" ]
 
-    # Load the private key from secrets into the SSH agent
-    - name: Use SSH agent
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      PROJECT_SLUG: ${{ vars.PROJECT_SLUG || 'project' }}
+    steps:
+      - uses: actions/checkout@v4
 
-    # Optional: if your key has a passphrase, also set:
-    #   ssh-passphrase: ${{ secrets.DEPLOY_SSH_PASSPHRASE }}
+      - name: Install rsync & OpenSSH
+        run: sudo apt-get update && sudo apt-get install -y rsync openssh-client
 
-    - name: Add host to known_hosts
-      run: ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+      # Load the private key from secrets into the SSH agent
+      - name: Use SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          # ssh-passphrase: ${{ secrets.DEPLOY_SSH_PASSPHRASE }}
 
-    - name: Make remote release dir
-      env:
-        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-      run: |
-        ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST \
-          "mkdir -p $DEPLOY_PATH/releases || true"
+      - name: Add host to known_hosts
+        run: ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Rsync code to new release and push .env
-      env:
-        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        PROJECT_SLUG: ${{ vars.PROJECT_SLUG || 'project' }}
-      run: |
-        RELEASE=$(date +%Y%m%d%H%M%S)
-        rsync -az --delete --exclude='.git' --exclude='node_modules' ./ $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/releases/$RELEASE/
-        # push .env from secrets into shared/.env (create if missing)
-        ENV_B64=$(printf '%s' "${{ secrets.ENV_FILE_CONTENT }}" | base64 -w0)
-        ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $DEPLOY_PATH/shared \ 
-          && echo \"$ENV_B64\" | base64 -d > $DEPLOY_PATH/shared/.env"
-        # finalize deploy (runs composer/migrate and symlink)
-        ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "sudo /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG:-project} $DEPLOY_PATH"
+      - name: Make remote release dir
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST \
+            "mkdir -p $DEPLOY_PATH/releases || true"
+
+      - name: Rsync code to new release
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          RELEASE=$(date +%Y%m%d%H%M%S)
+          echo "RELEASE=$RELEASE" >> $GITHUB_ENV
+          rsync -az -e "ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes" \
+            --delete --exclude='.git' --exclude='node_modules' ./ \
+            $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/releases/$RELEASE/
+
+      - name: Upload .env from secret
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ENV_B64=$(printf '%s' "${{ secrets.ENV_FILE_CONTENT }}" | base64 -w0)
+          ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST \
+            "mkdir -p $DEPLOY_PATH/shared && echo \"$ENV_B64\" | base64 -d > $DEPLOY_PATH/shared/.env"
+
+      - name: Finalize deploy (composer/migrate/symlink)
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST \
+            "sudo /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG} $DEPLOY_PATH"
