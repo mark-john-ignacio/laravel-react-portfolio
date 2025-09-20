@@ -2,7 +2,7 @@ name: CI & Atomic Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   test:
@@ -49,8 +49,8 @@ jobs:
           RELEASE=$(date +%Y%m%d%H%M%S)
           rsync -az --delete --exclude='.git' --exclude='node_modules' ./ $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/releases/$RELEASE/
           # push .env from secrets into shared/.env (create if missing)
-          ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $DEPLOY_PATH/shared && cat > $DEPLOY_PATH/shared/.env" <<'ENV'
-${{ secrets.ENV_FILE_CONTENT }}
-ENV
+          ENV_B64=$(printf '%s' "${{ secrets.ENV_FILE_CONTENT }}" | base64 -w0)
+          ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $DEPLOY_PATH/shared \ 
+            && echo \"$ENV_B64\" | base64 -d > $DEPLOY_PATH/shared/.env"
           # finalize deploy (runs composer/migrate and symlink)
           ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "sudo /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG:-project} $DEPLOY_PATH"
