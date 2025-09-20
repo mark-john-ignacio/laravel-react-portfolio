@@ -29,6 +29,47 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
+     * Normalize Ziggy location URL and force https scheme when appropriate.
+     */
+    protected function normalizeZiggyLocation(string $url, Request $request): string
+    {
+        $parts = parse_url($url);
+        if ($parts === false || !isset($parts['host'])) {
+            return $url;
+        }
+
+        $scheme = isset($parts['scheme']) ? strtolower($parts['scheme']) : null;
+
+        if ($scheme === 'https') {
+            return $url;
+        }
+
+        $forwardedProto = $request->headers->get('x-forwarded-proto');
+        $isHttpsRequest = ($forwardedProto === 'https') || $request->isSecure() || config('app.env') === 'production';
+
+        if (! $isHttpsRequest) {
+            return $url;
+        }
+
+        // Build the URL back with https scheme
+        $newUrl = 'https://' . $parts['host'];
+        if (isset($parts['port'])) {
+            $newUrl .= ':' . $parts['port'];
+        }
+        if (isset($parts['path'])) {
+            $newUrl .= $parts['path'];
+        }
+        if (isset($parts['query'])) {
+            $newUrl .= '?' . $parts['query'];
+        }
+        if (isset($parts['fragment'])) {
+            $newUrl .= '#' . $parts['fragment'];
+        }
+
+        return $newUrl;
+    }
+
+    /**
      * Define the props that are shared by default.
      *
      * @see https://inertiajs.com/shared-data
@@ -46,13 +87,15 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'ziggy' => fn (): array => [
+            'ziggy' => fn () use ($request): array => [
                 ...(new Ziggy)->toArray(),
-                // Use the configured app URL as the client location/origin. This
-                // ensures generated Ziggy routes use the correct scheme (https)
-                // in environments like Vercel where the application may be
-                // behind proxies and the incoming request URL might be http.
-                'location' => config('app.url'),
+                // Prefer the configured app URL, but ensure the scheme is https
+                // in production deployments (for example, Vercel) to avoid
+                // mixed-content issues where the page is served over HTTPS but
+                // Ziggy generated URLs use HTTP. If the environment indicates
+                // HTTPS (via APP_ENV or X-Forwarded-Proto), force the https
+                // scheme on the URL.
+                'location' => $this->normalizeZiggyLocation(config('app.url'), $request),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
