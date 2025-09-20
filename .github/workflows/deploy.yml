@@ -2,7 +2,7 @@ name: CI & Atomic Deploy
 
 on:
   push:
-    branches: [ "master12" ]
+    branches: [ "main" ]
 
 jobs:
   test:
