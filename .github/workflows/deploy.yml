@@ -78,8 +78,8 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
-            'if [ -d "$DEPLOY_PATH/shared/.env" ]; then echo "ERROR: $DEPLOY_PATH/shared/.env is a directory. Remove it and re-run."; ls -ld "$DEPLOY_PATH/shared/.env"; exit 1; fi; \
-             if [ ! -f "$DEPLOY_PATH/shared/.env" ]; then echo "ERROR: $DEPLOY_PATH/shared/.env is missing."; exit 1; fi'
+            "if [ -d \"$DEPLOY_PATH/shared/.env\" ]; then echo 'ERROR: $DEPLOY_PATH/shared/.env is a directory. Remove it and re-run.'; ls -ld \"$DEPLOY_PATH/shared/.env\"; exit 1; fi; \
+             if [ ! -f \"$DEPLOY_PATH/shared/.env\" ]; then echo 'ERROR: $DEPLOY_PATH/shared/.env is missing.'; exit 1; fi"
 
       - name: Finalize deploy (composer/migrate/symlink)
         env:
