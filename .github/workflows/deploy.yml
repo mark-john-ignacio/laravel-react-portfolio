@@ -71,6 +71,16 @@ jobs:
           ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
             "mkdir -p $DEPLOY_PATH/shared && echo \"$ENV_B64\" | base64 -d > $DEPLOY_PATH/shared/.env"
 
+      - name: Assert remote .env is a regular file
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
+            'if [ -d "$DEPLOY_PATH/shared/.env" ]; then echo "ERROR: $DEPLOY_PATH/shared/.env is a directory. Remove it and re-run."; ls -ld "$DEPLOY_PATH/shared/.env"; exit 1; fi; \
+             if [ ! -f "$DEPLOY_PATH/shared/.env" ]; then echo "ERROR: $DEPLOY_PATH/shared/.env is missing."; exit 1; fi'
+
       - name: Finalize deploy (composer/migrate/symlink)
         env:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -78,4 +88,4 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
-            "sudo /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG} $DEPLOY_PATH"
+            "sudo RELEASE=$RELEASE /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG} $DEPLOY_PATH"
