@@ -38,7 +38,7 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
-          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST "echo connected"
+          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "echo connected"
 
       - name: Make remote release dir
         env:
@@ -46,7 +46,7 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST \
+          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
             "mkdir -p $DEPLOY_PATH/releases || true"
 
       - name: Rsync code to new release
@@ -57,7 +57,7 @@ jobs:
         run: |
           RELEASE=$(date +%Y%m%d%H%M%S)
           echo "RELEASE=$RELEASE" >> $GITHUB_ENV
-          rsync -az -e "ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no -o IdentitiesOnly=yes" \
+          rsync -az -e "ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no" \
             --delete --exclude='.git' --exclude='node_modules' ./ \
             $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/releases/$RELEASE/
 
@@ -68,7 +68,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           ENV_B64=$(printf '%s' "${{ secrets.ENV_FILE_CONTENT }}" | base64 -w0)
-          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST \
+          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
             "mkdir -p $DEPLOY_PATH/shared && echo \"$ENV_B64\" | base64 -d > $DEPLOY_PATH/shared/.env"
 
       - name: Finalize deploy (composer/migrate/symlink)
@@ -77,5 +77,5 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $DEPLOY_USER@$DEPLOY_HOST \
+          ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
             "sudo /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG} $DEPLOY_PATH"
