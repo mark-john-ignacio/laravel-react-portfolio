@@ -92,6 +92,8 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          APP_DOMAIN: ${{ vars.APP_DOMAIN || '_' }}
+          CERTBOT_EMAIL: ${{ secrets.CERTBOT_EMAIL || '' }}
         run: |
           ssh -p $DEPLOY_PORT -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
-            "sudo RELEASE=$RELEASE /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG} $DEPLOY_PATH"
+            "sudo RELEASE=$RELEASE APP_DOMAIN='$APP_DOMAIN' CERTBOT_EMAIL='$CERTBOT_EMAIL' /usr/local/bin/atomic_deploy.sh ${PROJECT_SLUG} $DEPLOY_PATH"
