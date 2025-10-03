@@ -15,6 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
       - name: Install rsync & OpenSSH
         run: sudo apt-get update && sudo apt-get install -y rsync openssh-client
 
