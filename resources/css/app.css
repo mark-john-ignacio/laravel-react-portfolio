@@ -21,6 +21,38 @@ body { font-family: var(--font-inter); }
 .text-primary { color: #ccd6f6; }
 .text-secondary { color: #8892b0; }
 
+/* Shimmer animation for skeletons */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+/* Enhanced focus styles */
+*:focus-visible {
+  outline: 2px solid #64ffda;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Smooth scrolling with offset for fixed header */
+html {
+  scroll-padding-top: 80px;
+}
+
+/* Better backdrop blur support */
+@supports (backdrop-filter: blur(10px)) {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+  }
+  .backdrop-blur {
+    backdrop-filter: blur(12px);
+  }
+}
+
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

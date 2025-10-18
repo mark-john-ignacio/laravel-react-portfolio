@@ -10,6 +10,7 @@ import { AboutSection } from '@/sections/AboutSection';
 import { ExperienceSection } from '@/sections/ExperienceSection';
 import { ContactSection } from '@/sections/ContactSection';
 import { Footer } from '@/sections/Footer';
+import { ProjectsSkeletonGrid } from '@/components/ui/SkeletonLoader';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -103,7 +104,15 @@ function PortfolioPage(props: PortfolioPageProps) {
             profileImage={personalInfo?.profile_image_url}
           />
           {experiences?.length > 0 && <ExperienceSection experiences={experiences} />}
-          <Suspense fallback={<div className="px-6 py-24 md:px-24" aria-busy="true">Loading projects…</div>}>
+          <Suspense fallback={
+            <section className="px-6 py-24 md:px-24" aria-busy="true">
+              <h2 className="mb-8 text-2xl font-bold text-[#e6f1ff]">
+                <span className="font-mono text-[#64ffda] mr-2">03.</span>
+                Some Things I've Built
+              </h2>
+              <ProjectsSkeletonGrid count={6} />
+            </section>
+          }>
              <LazyProjects projects={projects} />
           </Suspense>
           <ContactSection email={personalInfo?.email} blurb={personalInfo?.contact_blurb} />

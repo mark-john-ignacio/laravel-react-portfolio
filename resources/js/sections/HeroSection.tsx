@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { HERO_PADDING } from '@/data/layout';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
 
 interface HeroSectionProps {
   motionVariants: { container: any; item: any };
@@ -56,7 +57,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ motionVariants, greeti
           <motion.p variants={motionVariants.item} className="mb-10 max-w-2xl text-[#8892b0] text-sm sm:text-base leading-relaxed">{blurb || "I'm a full stack developer focused on crafting performant, accessible, and visually polished web applications."}</motion.p>
         ) }
         <motion.div variants={motionVariants.item}>
-          <a href={ctaHref} className="inline-block rounded border border-[#64ffda] px-6 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50">{ctaLabel}</a>
+          <AnimatedButton
+            onClick={() => window.location.href = ctaHref}
+            variant="outline"
+            size="lg"
+          >
+            {ctaLabel}
+          </AnimatedButton>
         </motion.div>
       </motion.div>
     </section>
