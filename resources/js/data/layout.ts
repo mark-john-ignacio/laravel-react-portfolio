@@ -1,2 +1,2 @@
-export const SECTION_PADDING = 'px-6 py-16 sm:px-8 md:px-12 lg:px-16 xl:px-24 2xl:px-32';
-export const HERO_PADDING = 'px-6 pt-24 sm:px-8 md:px-12 lg:px-16 xl:px-24 2xl:px-32';
+export const SECTION_PADDING = 'px-6 py-24 sm:px-12 md:px-24 lg:px-32 xl:px-40 2xl:px-48';
+export const HERO_PADDING = 'px-6 sm:px-12 md:px-24 lg:px-32 xl:px-40 2xl:px-48';

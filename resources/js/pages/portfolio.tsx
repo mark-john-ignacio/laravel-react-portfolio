@@ -98,7 +98,7 @@ function PortfolioPage(props: PortfolioPageProps) {
                     </div>
                 )}
                 <Header />
-                <main id="content" className="w-full pt-20" role="main">
+                <main id="content" className="w-full" role="main">
                     <HeroSection
                         motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }}
                         greeting={personalInfo?.hero_greeting}

@@ -1,4 +1,4 @@
-import { Section, SectionHeading } from '@/components/Section';
+import { Section } from '@/components/Section';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import React from 'react';
 
@@ -13,37 +13,29 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ email, blurb, he
     const subject = encodeURIComponent('Say Hello From Your Portfolio');
     const body = encodeURIComponent(`Hi${safeEmail ? ' ' + safeEmail.split('@')[0] : ''}, `);
     return (
-        <Section id="contact" aria-labelledby="contact-heading">
-            <div className="text-center">
-                <SectionHeading id="contact-heading" index={4}>
+        <Section id="contact" aria-labelledby="contact-heading" className="py-24">
+            <div className="mx-auto max-w-[600px] text-center">
+                <p className="mb-5 font-mono text-base text-[#64ffda]">
+                    <span className="mr-2">04.</span>
                     What's Next?
-                </SectionHeading>
-            </div>
-            <div className="mx-auto max-w-2xl">
-                <div className="space-y-8 text-center">
-                    <h3 tabIndex={-1} className="text-4xl font-bold text-[#e6f1ff] focus:outline-none">
-                        {heading}
-                    </h3>
-                    <p className="mx-auto max-w-xl text-[#8892b0]">
-                        {blurb ||
-                            "I'm currently open to new opportunities and collaborations. If you just want to say hello or discuss a project, feel free to reach out — I read every message."}
-                    </p>
-                    {safeEmail && (
-                        <div>
-                            <AnimatedButton
-                                onClick={() => (window.location.href = `mailto:${safeEmail}?subject=${subject}&body=${body}`)}
-                                variant="outline"
-                                size="lg"
-                                aria-describedby="contact-note"
-                            >
-                                Say Hello
-                            </AnimatedButton>
-                        </div>
-                    )}
-                    <p id="contact-note" className="text-xs text-[#8892b0]">
-                        This opens your default email client.
-                    </p>
-                </div>
+                </p>
+                <h2 id="contact-heading" className="mb-5 text-[clamp(40px,5vw,60px)] font-semibold text-[#ccd6f6]">
+                    {heading}
+                </h2>
+                <p className="mb-12 leading-relaxed text-[#a8b2d1]">
+                    {blurb ||
+                        "I'm currently looking for new opportunities, and my inbox is always open. Whether you have a question or just want to say hi, I'll try my best to get back to you!"}
+                </p>
+                {safeEmail && (
+                    <AnimatedButton
+                        onClick={() => (window.location.href = `mailto:${safeEmail}?subject=${subject}&body=${body}`)}
+                        variant="outline"
+                        size="lg"
+                        aria-describedby="contact-note"
+                    >
+                        Say Hello
+                    </AnimatedButton>
+                )}
             </div>
         </Section>
     );

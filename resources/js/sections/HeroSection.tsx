@@ -46,7 +46,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     }, [reduceMotion]);
     const motionStyle = (depth: number) => (reduceMotion ? {} : { x: mouse.x * depth });
     return (
-        <section ref={heroRef} className={`relative flex min-h-[90vh] flex-col justify-center overflow-hidden ${HERO_PADDING}`} aria-label="Hero">
+        <section ref={heroRef} className={`relative flex min-h-screen flex-col justify-center overflow-hidden ${HERO_PADDING}`} aria-label="Hero">
             {!reduceMotion && (
                 <>
                     <motion.div
@@ -70,23 +70,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     />
                 </>
             )}
-            <motion.div variants={motionVariants.container} initial="hidden" animate="show" className="relative z-10 w-full max-w-4xl">
-                <motion.p variants={motionVariants.item} className="mb-4 font-mono text-sm text-[#64ffda]">
+            <motion.div variants={motionVariants.container} initial="hidden" animate="show" className="relative z-10 w-full max-w-[1000px]">
+                <motion.p variants={motionVariants.item} className="mb-5 font-mono text-base text-[#64ffda]">
                     {greeting || 'Hi, my name is'}
                 </motion.p>
-                <motion.h1
-                    variants={motionVariants.item}
-                    className="mb-2 text-4xl leading-tight font-extrabold text-[#e6f1ff] sm:text-5xl md:text-6xl lg:text-7xl"
-                >
+                <motion.h1 variants={motionVariants.item} className="mb-3 text-[clamp(40px,8vw,80px)] leading-[1.1] font-semibold text-[#ccd6f6]">
                     {name || 'Your Name'}.
                 </motion.h1>
                 {(tagline || 'I build things for the web.') && (
-                    <motion.h2 variants={motionVariants.item} className="mb-6 text-3xl font-semibold text-[#8892b0] sm:text-4xl md:text-5xl">
+                    <motion.h2 variants={motionVariants.item} className="mb-5 text-[clamp(40px,8vw,80px)] leading-[1.1] font-semibold text-[#8892b0]">
                         {tagline || 'I build things for the web.'}
                     </motion.h2>
                 )}
                 {(blurb || "I'm a full stack developer focused on crafting performant, accessible, and visually polished web applications.") && (
-                    <motion.p variants={motionVariants.item} className="mb-10 max-w-2xl text-sm leading-relaxed text-[#8892b0] sm:text-base">
+                    <motion.p variants={motionVariants.item} className="mb-12 max-w-[540px] text-base leading-relaxed text-[#8892b0]">
                         {blurb || "I'm a full stack developer focused on crafting performant, accessible, and visually polished web applications."}
                     </motion.p>
                 )}
