@@ -44,16 +44,19 @@ docs/
 ## 🚀 How to Run
 
 ### 1. Navigate to Docusaurus folder
+
 ```bash
 cd docs/docusaurus
 ```
 
 ### 2. Install dependencies (first time only)
+
 ```bash
 npm install
 ```
 
 ### 3. Start development server
+
 ```bash
 npm start
 ```
@@ -61,6 +64,7 @@ npm start
 The documentation site will open at **http://localhost:3000** 🎊
 
 ### 4. Build for production
+
 ```bash
 npm run build
 ```
@@ -68,19 +72,22 @@ npm run build
 ## ✨ Features
 
 ### Navigation
+
 - ✅ **Organized sidebar** with 4 main categories
 - ✅ **Search functionality** (built-in)
 - ✅ **Mobile-responsive** design
 - ✅ **Dark mode** support
 
 ### Content
+
 - ✅ **16 documentation files** organized by category:
-  - 📐 Design (4 docs)
-  - 🧩 UI Components (3 docs)
-  - 🐛 Bug Fixes (5 docs)
-  - 🖱️ Features (4 docs)
+    - 📐 Design (4 docs)
+    - 🧩 UI Components (3 docs)
+    - 🐛 Bug Fixes (5 docs)
+    - 🖱️ Features (4 docs)
 
 ### Configuration
+
 - ✅ **Custom branding** - "Portfolio Documentation"
 - ✅ **GitHub integration** - Link to your repo
 - ✅ **Custom footer** - Quick links to all sections
@@ -89,17 +96,20 @@ npm run build
 ## 📖 Documentation Categories
 
 ### 📐 Design
+
 - Brittany Chiang Redesign Guide
 - Visual Comparison (Before/After)
 - Redesign Summary
 - Hero Spacing Fix
 
 ### 🧩 UI Components
+
 - UI Improvements Overview
 - UI Visual Reference
 - Quick Start UI Guide
 
 ### 🐛 Bug Fixes
+
 - Modal Scroll Fix
 - Modal ShowMore Fix
 - Scrollbar Fix
@@ -107,6 +117,7 @@ npm run build
 - Quick Fix Reference
 
 ### 🖱️ Features (Deprecated)
+
 - Custom Cursor Guide
 - Cursor Visual Guide
 - Cursor Quick Reference
@@ -115,6 +126,7 @@ npm run build
 ## 🎨 Customization Done
 
 ### Site Configuration
+
 - **Title**: "Portfolio Documentation"
 - **Tagline**: "Laravel + React Portfolio - Complete Documentation"
 - **URL**: Configured for GitHub Pages
@@ -122,37 +134,45 @@ npm run build
 - **Project**: laravel-react-portfolio
 
 ### Navigation
+
 - **Navbar**: Simple with Documentation link and GitHub
 - **Sidebar**: Organized into 4 categories with emojis
 - **Footer**: Quick links to all major sections
 
 ### Theme
+
 - **Color Mode**: Respects system preferences
 - **Syntax Highlighting**: GitHub theme (light) / Dracula (dark)
 
 ## 📦 Deployment Options
 
 ### Option 1: GitHub Pages (Recommended)
+
 ```bash
 cd docs/docusaurus
 npm run deploy
 ```
 
 This will:
+
 1. Build the static site
 2. Push to `gh-pages` branch
 3. Automatically deploy to: `https://mark-john-ignacio.github.io/laravel-react-portfolio/`
 
 ### Option 2: Manual Deploy
+
 ```bash
 npm run build
 ```
+
 Upload the `build/` folder to any static hosting service (Netlify, Vercel, etc.)
 
 ## 🔧 Key Configuration Files
 
 ### docusaurus.config.ts
+
 Main configuration file with:
+
 - Site metadata
 - GitHub integration
 - Navigation structure
@@ -160,7 +180,9 @@ Main configuration file with:
 - Theme settings
 
 ### sidebars.ts
+
 Sidebar navigation structure:
+
 ```typescript
 {
   docs: [
@@ -176,22 +198,26 @@ Sidebar navigation structure:
 ## 🎯 Next Steps
 
 ### 1. View the site locally
+
 ```bash
 cd docs/docusaurus
 npm start
 ```
 
 ### 2. Customize (optional)
+
 - Edit `docusaurus.config.ts` for site settings
 - Modify `src/css/custom.css` for styling
 - Replace `static/img/logo.svg` with your logo
 
 ### 3. Add new documentation
+
 - Create `.md` files in appropriate category folders
 - Add frontmatter with sidebar position
 - Files automatically appear in navigation
 
 ### 4. Deploy to GitHub Pages
+
 ```bash
 npm run deploy
 ```
@@ -227,12 +253,14 @@ The file will automatically appear in the Design category!
 ## 🎊 Benefits
 
 ### Before
+
 - Markdown files scattered in root
 - No easy way to view documentation
 - Difficult to navigate
 - No search functionality
 
 ### After
+
 - ✨ **Professional documentation site**
 - 🔍 **Built-in search**
 - 📱 **Mobile-responsive**
@@ -259,6 +287,7 @@ The file will automatically appear in the Design category!
 ## 🎉 You're All Set!
 
 Your documentation is now:
+
 - 📚 Professionally organized
 - 🌐 Web-viewable
 - 🔍 Searchable

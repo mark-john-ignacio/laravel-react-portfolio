@@ -47,12 +47,12 @@ docs/
 
 1. Create a new `.md` file in the appropriate category folder
 2. Add frontmatter:
-   ```md
-   ---
-   sidebar_position: 1
-   title: Your Title
-   ---
-   ```
+    ```md
+    ---
+    sidebar_position: 1
+    title: Your Title
+    ---
+    ```
 3. The document will automatically appear in the sidebar
 
 ## 📦 Deployment
@@ -67,13 +67,13 @@ This builds and deploys to the `gh-pages` branch.
 
 ## 🔧 Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start development server |
-| `npm run build` | Build for production |
-| `npm run serve` | Serve production build |
-| `npm run deploy` | Deploy to GitHub Pages |
-| `npm run clear` | Clear cache |
+| Command          | Description              |
+| ---------------- | ------------------------ |
+| `npm start`      | Start development server |
+| `npm run build`  | Build for production     |
+| `npm run serve`  | Serve production build   |
+| `npm run deploy` | Deploy to GitHub Pages   |
+| `npm run clear`  | Clear cache              |
 
 ---
 

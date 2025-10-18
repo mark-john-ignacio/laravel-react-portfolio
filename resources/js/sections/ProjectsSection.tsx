@@ -73,11 +73,11 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                                         src={p.image || '/images/placeholders/feature-1.svg'}
                                         alt={p.title}
                                         loading="lazy"
-                                        className="h-full w-full object-cover opacity-25 transition duration-300 group-hover:opacity-30"
+                                        className="h-full w-full object-cover opacity-25 transition duration-300 group-hover:opacity-100"
                                     />
                                 </div>
-                                {/* Teal overlay on hover */}
-                                <div className="pointer-events-none absolute inset-0 rounded bg-[#64ffda]/0 transition duration-300 group-hover:bg-[#64ffda]/10" />
+                                {/* Teal overlay on hover - removed to show actual image colors */}
+                                <div className="pointer-events-none absolute inset-0 rounded bg-[#64ffda]/0 transition duration-300" />
                             </button>
 
                             {/* Content - Overlays image on desktop */}

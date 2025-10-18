@@ -12,6 +12,7 @@ This documentation site covers all aspects of the portfolio's design, UI compone
 ## 🎯 What's Inside
 
 ### 📐 Design Documentation
+
 Learn about the design decisions, UI/UX improvements, and how the portfolio was refined to match professional standards inspired by Brittany Chiang's v4 design.
 
 - **Brittany Chiang Redesign** - Complete redesign guide
@@ -20,6 +21,7 @@ Learn about the design decisions, UI/UX improvements, and how the portfolio was 
 - **Hero Spacing Fix** - Exact spacing adjustments
 
 ### 🧩 UI Components
+
 Explore the custom UI components built for this portfolio, including glassmorphic cards, skeleton loaders, and animated buttons.
 
 - **UI Improvements** - Component overview
@@ -27,6 +29,7 @@ Explore the custom UI components built for this portfolio, including glassmorphi
 - **Quick Start UI** - Getting started guide
 
 ### 🐛 Bug Fixes
+
 Detailed documentation of common issues and their solutions, including modal scrolling, scrollbar behavior, and more.
 
 - **Modal Scroll Fix** - Complete scrolling solution
@@ -36,6 +39,7 @@ Detailed documentation of common issues and their solutions, including modal scr
 - **Quick Fix Reference** - Common fixes
 
 ### 🖱️ Features (Deprecated)
+
 Documentation for features that were implemented and later removed, maintained for reference.
 
 - **Custom Cursor Guide** - Implementation guide
@@ -52,6 +56,7 @@ Documentation for features that were implemented and later removed, maintained f
 ## 💡 Tech Stack
 
 This portfolio is built with:
+
 - **Backend**: Laravel 12+
 - **Frontend**: React 18+ with TypeScript
 - **UI**: shadcn/ui + Tailwind CSS
