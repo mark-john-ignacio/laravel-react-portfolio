@@ -58,14 +58,14 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
             >
                 <RevealGroup>
                     {featured.map((p, idx) => (
-                        <Reveal key={p.id} index={idx} distance={40} className="grid items-center gap-0 md:grid-cols-12">
-                            {/* Image - Full width on mobile, overlapping on desktop */}
+                        <Reveal key={p.id} index={idx} distance={40} className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:gap-0">
+                            {/* Image - Stacks on mobile, overlapping on desktop */}
                             <button
                                 type="button"
                                 onClick={() => setActiveProject(p)}
-                                className={`group relative ${
+                                className={`group relative w-full ${
                                     idx % 2 === 0 ? 'md:col-span-7 md:col-start-1' : 'md:col-span-7 md:col-start-6'
-                                } row-start-1 focus:outline-none`}
+                                } focus:outline-none md:row-start-1`}
                                 aria-label={`Open details for ${p.title}`}
                             >
                                 <div className="aspect-video w-full overflow-hidden rounded bg-[#64ffda]/10">
@@ -80,11 +80,11 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                                 <div className="pointer-events-none absolute inset-0 rounded bg-[#64ffda]/0 transition duration-300" />
                             </button>
 
-                            {/* Content - Overlays image on desktop */}
+                            {/* Content - Stacks below image on mobile, overlays on desktop */}
                             <div
-                                className={`relative ${
+                                className={`relative w-full ${
                                     idx % 2 === 0 ? 'md:col-span-7 md:col-start-6 md:text-right' : 'md:col-span-7 md:col-start-1 md:text-left'
-                                } z-10 row-start-1 p-6 md:p-0`}
+                                } md:z-10 md:row-start-1 md:p-0`}
                             >
                                 <p className="mb-2 font-mono text-xs text-[#64ffda]">Featured Project</p>
                                 <h3 className="mb-5 text-[clamp(24px,5vw,28px)] font-semibold text-[#ccd6f6]">
