@@ -24,6 +24,8 @@ interface RevealGroupContextValue {
 
 const RevealGroupContext = createContext<RevealGroupContextValue | null>(null);
 
+const SMOOTH_EASE = [0.22, 0.68, 0, 1];
+
 export const Reveal: React.FC<RevealProps> = ({
     as: Component = 'div',
     delay = 0,
@@ -56,15 +58,19 @@ export const Reveal: React.FC<RevealProps> = ({
     const shouldAnimate = !disableAnimations;
     const MotionTag: any = motion(Component as any);
     const hasEntered = inView || hasAnimated;
-    const targetState = hasEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: offset };
-    const initialState = shouldAnimate && !hasAnimated ? { opacity: 0, y: offset } : false;
-    const transition = shouldAnimate ? { duration, ease: 'easeOut', delay: computedDelay } : { duration: 0, ease: 'linear', delay: 0 };
+    const hiddenState = { opacity: 0, y: offset, scale: 0.96, filter: 'blur(10px)' };
+    const visibleState = { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' };
+    const targetState = hasEntered ? visibleState : hiddenState;
+    const initialState = shouldAnimate && !hasAnimated ? hiddenState : false;
+    const transition = shouldAnimate
+        ? { duration, ease: SMOOTH_EASE, delay: computedDelay }
+        : { duration: 0, ease: 'linear', delay: 0 };
 
     return (
         <MotionTag
             ref={ref}
             initial={initialState}
-            animate={shouldAnimate ? targetState : { opacity: targetState.opacity, y: targetState.y }}
+            animate={shouldAnimate ? targetState : { opacity: targetState.opacity, y: targetState.y, scale: 1, filter: 'blur(0px)' }}
             transition={transition}
             className={className}
             style={style}

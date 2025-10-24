@@ -6,24 +6,64 @@ import { cn } from '@/lib/utils';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+const SMOOTH_EASE = [0.22, 0.68, 0, 1];
+
+const sectionRevealVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.66, ease: SMOOTH_EASE } },
+};
+
 const featuredContainerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { delayChildren: 0.1, staggerChildren: 0.18 } },
+    visible: {
+        opacity: 1,
+        transition: {
+            ease: SMOOTH_EASE,
+            delayChildren: 0.12,
+            staggerChildren: 0.22,
+        },
+    },
 };
 
 const featuredCardVariants = {
-    hidden: { opacity: 0, y: 36, scale: 0.96 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+    hidden: { opacity: 0, y: 48, scale: 0.94, rotateX: 4, filter: 'blur(12px)' },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        rotateX: 0,
+        filter: 'blur(0px)',
+        transition: {
+            duration: 0.74,
+            ease: SMOOTH_EASE,
+        },
+    },
 };
 
 const secondaryContainerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            ease: SMOOTH_EASE,
+            delayChildren: 0.08,
+            staggerChildren: 0.1,
+        },
+    },
 };
 
 const secondaryCardVariants = {
-    hidden: { opacity: 0, y: 28 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.33, 1, 0.68, 1] } },
+    hidden: { opacity: 0, y: 36, scale: 0.96 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            duration: 0.58,
+            ease: SMOOTH_EASE,
+        },
+    },
 };
 // Dynamic projects now passed via props
 export interface ProjectItemData {
@@ -50,7 +90,8 @@ export interface ProjectsSectionProps {
 export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secondary }: ProjectsSectionProps) {
     const sectionRef = useRef<HTMLElement | null>(null);
     const sectionInView = useInView(sectionRef, { once: true, margin: '-120px' });
-    const reduceMotion = useReducedMotion();
+    const prefersReducedMotion = useReducedMotion();
+    const reduceMotion = prefersReducedMotion ?? false;
 
     const [showAll, setShowAll] = useState(false);
     const [activeProject, setActiveProject] = useState<ProjectItemData | null>(null);
@@ -89,9 +130,16 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
 
     return (
         <Section as="section" ref={sectionRef} aria-labelledby={id} id={id} className="pt-24">
-            <SectionHeading index={headingIndex} id={`${id}-heading`}>
-                Some Things I've Built
-            </SectionHeading>
+            <motion.div
+                initial="hidden"
+                animate={sectionInView ? 'visible' : 'hidden'}
+                variants={reduceMotion ? undefined : sectionRevealVariants}
+                transition={{ duration: 0.6, ease: SMOOTH_EASE }}
+            >
+                <SectionHeading index={headingIndex} id={`${id}-heading`}>
+                    Some Things I've Built
+                </SectionHeading>
+            </motion.div>
             {featured.length === 0 && secondary.length === 0 && (
                 <div className="mt-8 rounded border border-[#233554] bg-[#112240] p-8 text-center text-sm text-[#8892b0]">
                     <p>No projects are published yet. Mark some projects as published (and optionally featured) in the admin to display them here.</p>
@@ -110,7 +158,6 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                         <FeaturedProjectCard
                             key={project.id}
                             project={project}
-                            index={index}
                             align={index % 2 === 0 ? 'left' : 'right'}
                             onOpen={handleProjectOpen}
                             reduceMotion={reduceMotion}
@@ -133,7 +180,6 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                         <SecondaryProjectCard
                             key={project.id}
                             project={project}
-                            index={index}
                             onOpen={handleProjectOpen}
                             reduceMotion={reduceMotion}
                         />
@@ -202,13 +248,12 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
 
 interface FeaturedProjectCardProps {
     project: ProjectItemData;
-    index: number;
     align: 'left' | 'right';
     onOpen: (project: ProjectItemData) => void;
     reduceMotion: boolean;
 }
 
-const FeaturedProjectCard = memo(function FeaturedProjectCard({ project, index, align, onOpen, reduceMotion }: FeaturedProjectCardProps) {
+const FeaturedProjectCard = memo(function FeaturedProjectCard({ project, align, onOpen, reduceMotion }: FeaturedProjectCardProps) {
     const imageAlignment = align === 'left' ? 'md:col-span-7 md:col-start-1' : 'md:col-span-7 md:col-start-6';
     const contentAlignment = align === 'left' ? 'md:col-span-7 md:col-start-6 md:text-right' : 'md:col-span-7 md:col-start-1 md:text-left';
     const contentJustify = align === 'left' ? 'md:justify-end' : 'md:justify-start';
@@ -216,17 +261,19 @@ const FeaturedProjectCard = memo(function FeaturedProjectCard({ project, index, 
     return (
         <motion.article
             layout
+            style={{ transformStyle: 'preserve-3d' }}
             variants={reduceMotion ? undefined : featuredCardVariants}
             className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-center md:gap-0"
-            transition={reduceMotion ? undefined : { delay: index * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true, margin: '-12%' }}
+            whileHover={reduceMotion ? undefined : { y: -8 }}
         >
             <motion.button
                 type="button"
                 onClick={() => onOpen(project)}
                 className={cn('group relative w-full focus:outline-none md:row-start-1', imageAlignment)}
                 aria-label={`Open details for ${project.title}`}
-                whileHover={reduceMotion ? undefined : { scale: 1.01 }}
-                transition={{ type: 'spring', stiffness: 220, damping: 20 }}
+                whileHover={reduceMotion ? undefined : { scale: 1.015 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
             >
                 <div className="aspect-video w-full overflow-hidden rounded bg-[#64ffda]/10">
                     <img
@@ -289,14 +336,18 @@ const FeaturedProjectCard = memo(function FeaturedProjectCard({ project, index, 
 
 interface SecondaryProjectCardProps {
     project: ProjectItemData;
-    index: number;
     onOpen: (project: ProjectItemData) => void;
     reduceMotion: boolean;
 }
 
-const SecondaryProjectCard = memo(function SecondaryProjectCard({ project, index, onOpen, reduceMotion }: SecondaryProjectCardProps) {
+const SecondaryProjectCard = memo(function SecondaryProjectCard({ project, onOpen, reduceMotion }: SecondaryProjectCardProps) {
     return (
-        <motion.article layout variants={reduceMotion ? undefined : secondaryCardVariants} transition={{ delay: index * 0.05 }}>
+        <motion.article
+            layout
+            variants={reduceMotion ? undefined : secondaryCardVariants}
+            viewport={{ once: true, margin: '-10%' }}
+            whileHover={reduceMotion ? undefined : { y: -6 }}
+        >
             <GlassCard hover glow className="group relative flex h-full flex-col p-6">
                 <div className="mb-4 aspect-video w-full overflow-hidden rounded bg-[#0f223d] ring-1 ring-[#233554]/30">
                     <img
