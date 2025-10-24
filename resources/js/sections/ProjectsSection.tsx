@@ -3,6 +3,7 @@ import { Reveal, RevealGroup } from '@/components/reveal';
 import { Section, SectionHeading } from '@/components/Section';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { cn } from '@/lib/utils';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 // Dynamic projects now passed via props
@@ -37,6 +38,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
     const INITIAL_SHOW_COUNT = 6;
     const visibleSecondaryProjects = showAll ? secondary : secondary.slice(0, INITIAL_SHOW_COUNT);
     const hasMore = secondary.length > INITIAL_SHOW_COUNT;
+    const isDialogOpen = Boolean(activeProject);
 
     // Data already separated server-side
 
@@ -54,11 +56,17 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                 initial={{ opacity: 0, y: 32 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.7, ease: 'easeOut' }}
-                className="space-y-32"
+                className={cn('space-y-32', isDialogOpen && 'pointer-events-none')}
+                aria-hidden={isDialogOpen}
             >
-                <RevealGroup className="space-y-32">
+                <RevealGroup className="space-y-32" disableAnimations={isDialogOpen}>
                     {featured.map((p, idx) => (
-                        <Reveal key={p.id} index={idx} distance={40} className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-center md:gap-0">
+                        <Reveal
+                            key={p.id}
+                            index={idx}
+                            distance={40}
+                            className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-center md:gap-0"
+                        >
                             {/* Image - Stacks on mobile, overlapping on desktop */}
                             <button
                                 type="button"
@@ -153,7 +161,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                     </div>
                 )}
 
-                <RevealGroup as="div" className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                <RevealGroup as="div" className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3" disableAnimations={isDialogOpen}>
                     {visibleSecondaryProjects.map((p, index) => (
                         <Reveal key={p.id} distance={24} index={index}>
                             <GlassCard hover glow className="group relative flex h-full flex-col p-6">

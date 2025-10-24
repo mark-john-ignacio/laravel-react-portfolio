@@ -13,6 +13,7 @@ interface RevealProps extends React.HTMLAttributes<any> {
   once?: boolean;
   index?: number; // used inside group
   style?: React.CSSProperties;
+  disableAnimations?: boolean;
   [key: string]: any; // allow arbitrary attributes (e.g., form props, aria-*)
 }
 
@@ -34,6 +35,7 @@ export const Reveal: React.FC<RevealProps> = ({
   index,
   style,
   className,
+  disableAnimations = false,
   ...rest
 }) => {
   const { ref, inView, hasAnimated } = useReveal<HTMLDivElement>({ once });
@@ -41,8 +43,9 @@ export const Reveal: React.FC<RevealProps> = ({
   const reduceMotion = usePrefersReducedMotion();
   const computedDelay = group && typeof index === 'number' ? group.baseDelay + group.stagger * index : delay;
   const offset = typeof y === 'number' ? y : distance;
+  const shouldAnimate = !disableAnimations && !reduceMotion;
 
-  if (reduceMotion) {
+  if (!shouldAnimate) {
     const Comp: any = Component; // fallback without animation
     return (
       <Comp ref={ref} className={className} style={style} {...rest}>
@@ -79,6 +82,7 @@ interface RevealGroupProps {
   duration?: number;
   once?: boolean;
   style?: React.CSSProperties;
+  disableAnimations?: boolean;
 }
 
 export const RevealGroup: React.FC<RevealGroupProps> = ({
@@ -92,12 +96,21 @@ export const RevealGroup: React.FC<RevealGroupProps> = ({
   duration = 0.5,
   once = true,
   style,
+  disableAnimations = false,
 }) => {
   const offset = typeof y === 'number' ? y : distance;
   // If offset provided, animate the container itself once; children will still stagger internally.
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children: inner }) =>
     offset !== 0 ? (
-      <Reveal as={Component as any} distance={offset} duration={duration} once={once} className={className} style={style}>
+      <Reveal
+        as={Component as any}
+        distance={offset}
+        duration={duration}
+        once={once}
+        className={className}
+        style={style}
+        disableAnimations={disableAnimations}
+      >
         {inner}
       </Reveal>
     ) : (
@@ -109,7 +122,15 @@ export const RevealGroup: React.FC<RevealGroupProps> = ({
     <RevealGroupContext.Provider value={{ stagger, baseDelay }}>
       <Wrapper>
         {React.Children.map(children, (child, index) =>
-          React.isValidElement(child) ? React.cloneElement(child as any, { index }) : child
+          React.isValidElement(child)
+            ? React.cloneElement(child as any, {
+                index,
+                disableAnimations:
+                  typeof (child as any).props?.disableAnimations === 'boolean'
+                    ? (child as any).props.disableAnimations
+                    : disableAnimations,
+              })
+            : child
         )}
       </Wrapper>
     </RevealGroupContext.Provider>

@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/UIComponents';
 import { ProjectItemData } from '@/sections/ProjectsSection';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion } from 'framer-motion';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface ProjectDialogProps {
     project: ProjectItemData | null;
@@ -17,8 +17,33 @@ export const ProjectDialog: React.FC<ProjectDialogProps> = ({ project, onOpenCha
         }
     };
 
+    const isOpen = Boolean(project);
+
+    useEffect(() => {
+        if (!isOpen || typeof window === 'undefined') {
+            return;
+        }
+
+        const root = document.documentElement;
+        const previousOverflow = root.style.overflow;
+        const previousPaddingRight = root.style.paddingRight;
+        const scrollbarWidth = window.innerWidth - root.clientWidth;
+
+        root.style.overflow = 'hidden';
+        if (scrollbarWidth > 0) {
+            root.style.paddingRight = `${scrollbarWidth}px`;
+        }
+        root.setAttribute('data-project-dialog-open', 'true');
+
+        return () => {
+            root.style.overflow = previousOverflow;
+            root.style.paddingRight = previousPaddingRight;
+            root.removeAttribute('data-project-dialog-open');
+        };
+    }, [isOpen]);
+
     return (
-        <Dialog.Root open={!!project} onOpenChange={onOpenChange}>
+        <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
             <AnimatePresence>
                 {project && (
                     <Dialog.Portal forceMount>
@@ -46,7 +71,7 @@ export const ProjectDialog: React.FC<ProjectDialogProps> = ({ project, onOpenCha
                                                 src={project.image || '/images/placeholders/feature-1.svg'}
                                                 alt={project.title}
                                                 loading="lazy"
-                                                className="h-full w-full object-cover"
+                                                className="h-full w-full object-contain"
                                             />
                                         </div>
                                         <div className="absolute top-4 right-4">
