@@ -58,9 +58,7 @@ export const Reveal: React.FC<RevealProps> = ({
     const hasEntered = inView || hasAnimated;
     const targetState = hasEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: offset };
     const initialState = shouldAnimate && !hasAnimated ? { opacity: 0, y: offset } : false;
-    const transition = shouldAnimate
-        ? { duration, ease: 'easeOut', delay: computedDelay }
-        : { duration: 0, ease: 'linear', delay: 0 };
+    const transition = shouldAnimate ? { duration, ease: 'easeOut', delay: computedDelay } : { duration: 0, ease: 'linear', delay: 0 };
 
     return (
         <MotionTag
