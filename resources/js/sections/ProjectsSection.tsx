@@ -61,12 +61,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
             >
                 <RevealGroup className="space-y-32" disableAnimations={isDialogOpen}>
                     {featured.map((p, idx) => (
-                        <Reveal
-                            key={p.id}
-                            index={idx}
-                            distance={40}
-                            className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-center md:gap-0"
-                        >
+                        <Reveal key={p.id} index={idx} distance={40} className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-center md:gap-0">
                             {/* Image - Stacks on mobile, overlapping on desktop */}
                             <button
                                 type="button"
