@@ -54,11 +54,11 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                 initial={{ opacity: 0, y: 32 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.7, ease: 'easeOut' }}
-                className="space-y-24"
+                className="space-y-32"
             >
-                <RevealGroup>
+                <RevealGroup className="space-y-32">
                     {featured.map((p, idx) => (
-                        <Reveal key={p.id} index={idx} distance={40} className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:gap-0">
+                        <Reveal key={p.id} index={idx} distance={40} className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-center md:gap-0">
                             {/* Image - Stacks on mobile, overlapping on desktop */}
                             <button
                                 type="button"
@@ -73,7 +73,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                                         src={p.image || '/images/placeholders/feature-1.svg'}
                                         alt={p.title}
                                         loading="lazy"
-                                        className="h-full w-full object-cover opacity-25 transition duration-300 group-hover:opacity-100"
+                                        className="h-full w-full object-contain opacity-25 transition duration-300 group-hover:opacity-100"
                                     />
                                 </div>
                                 {/* Teal overlay on hover - removed to show actual image colors */}
@@ -145,16 +145,24 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                         </Reveal>
                     ))}
                 </RevealGroup>
-                <RevealGroup as="div" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+                {/* Visual separator between featured and secondary projects */}
+                {featured.length > 0 && secondary.length > 0 && (
+                    <div className="py-8">
+                        <div className="mx-auto h-px w-32 bg-gradient-to-r from-transparent via-[#233554] to-transparent"></div>
+                    </div>
+                )}
+
+                <RevealGroup as="div" className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {visibleSecondaryProjects.map((p, index) => (
                         <Reveal key={p.id} distance={24} index={index}>
                             <GlassCard hover glow className="group relative flex h-full flex-col p-6">
-                                <div className="mb-3 aspect-video w-full overflow-hidden rounded bg-[#0f223d] ring-1 ring-[#233554]/30">
+                                <div className="mb-4 aspect-video w-full overflow-hidden rounded bg-[#0f223d] ring-1 ring-[#233554]/30">
                                     <img
                                         src={p.image || '/images/placeholders/grid-1.svg'}
                                         alt={p.title}
                                         loading="lazy"
-                                        className="h-full w-full object-cover opacity-80 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
+                                        className="h-full w-full object-contain opacity-80 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
                                     />
                                 </div>
                                 <div className="mb-2 flex items-start justify-between">
