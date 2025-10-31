@@ -20,10 +20,16 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
     const [activeIndex, setActiveIndex] = useState(0);
     const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const listRef = useRef<HTMLUListElement | null>(null);
+    const hasMountedRef = useRef(false);
     const active = experiences[activeIndex];
 
     // Ensure active tab is scrolled into view on mobile when index changes
     useEffect(() => {
+        if (!hasMountedRef.current) {
+            hasMountedRef.current = true;
+            return;
+        }
+
         const activeEl = tabRefs.current[activeIndex];
         if (activeEl && listRef.current) {
             activeEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });

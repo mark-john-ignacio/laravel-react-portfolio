@@ -177,12 +177,7 @@ export function ProjectsSection({ id = 'work', headingIndex = 3, featured, secon
                     variants={reduceMotion ? undefined : secondaryContainerVariants}
                 >
                     {visibleSecondaryProjects.map((project, index) => (
-                        <SecondaryProjectCard
-                            key={project.id}
-                            project={project}
-                            onOpen={handleProjectOpen}
-                            reduceMotion={reduceMotion}
-                        />
+                        <SecondaryProjectCard key={project.id} project={project} onOpen={handleProjectOpen} reduceMotion={reduceMotion} />
                     ))}
                 </motion.div>
 
