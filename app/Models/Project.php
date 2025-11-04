@@ -85,15 +85,25 @@ class Project extends Model
         $path = $this->image_url;
         if (str_starts_with($path, 'http')) return $path;
         $disk = config('filesystems.default');
-        // Prefer current default disk; fall back to 'public' for legacy files
-        if (Storage::disk($disk)->exists($path)) {
+        // Prefer signed URLs if enabled (for private buckets)
+        if (config('filesystems.signed_urls') && $disk !== 'public') {
+            try {
+                return Storage::disk($disk)->temporaryUrl($path, now()->addSeconds((int)config('filesystems.signed_ttl', 600)));
+            } catch (\Throwable $e) {
+                // fall through to public URL below
+            }
+        }
+        // Generate public URL from the configured disk
+        try {
             return Storage::disk($disk)->url($path);
+        } catch (\Throwable $e) {
+            // Fallback to public disk only if default disk URL generation fails
+            try {
+                return Storage::disk('public')->url($path);
+            } catch (\Throwable $e2) {
+                return null;
+            }
         }
-        if ($disk !== 'public' && Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->url($path);
-        }
-        // As a last resort, attempt URL on default disk
-        return Storage::disk($disk)->url($path);
     }
 
     public function getGalleryUrlsAttribute(): array
@@ -102,13 +112,22 @@ class Project extends Model
         $images = $this->gallery_images ?? [];
         return array_map(function ($path) use ($disk) {
             if (str_starts_with($path, 'http')) return $path;
-            if (Storage::disk($disk)->exists($path)) {
+            if (config('filesystems.signed_urls') && $disk !== 'public') {
+                try {
+                    return Storage::disk($disk)->temporaryUrl($path, now()->addSeconds((int)config('filesystems.signed_ttl', 600)));
+                } catch (\Throwable $e) {
+                    // fall through
+                }
+            }
+            try {
                 return Storage::disk($disk)->url($path);
+            } catch (\Throwable $e) {
+                try {
+                    return Storage::disk('public')->url($path);
+                } catch (\Throwable $e2) {
+                    return $path; // last resort – return raw path
+                }
             }
-            if ($disk !== 'public' && Storage::disk('public')->exists($path)) {
-                return Storage::disk('public')->url($path);
-            }
-            return Storage::disk($disk)->url($path);
         }, $images);
     }
 }

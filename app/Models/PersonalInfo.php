@@ -75,12 +75,21 @@ class PersonalInfo extends Model
         if (!$value) return null;
         if (str_starts_with($value, 'http')) return $value;
         $disk = config('filesystems.default');
-        if (Storage::disk($disk)->exists($value)) {
+        if (config('filesystems.signed_urls') && $disk !== 'public') {
+            try {
+                return Storage::disk($disk)->temporaryUrl($value, now()->addSeconds((int)config('filesystems.signed_ttl', 600)));
+            } catch (\Throwable $e) {
+                // fall through
+            }
+        }
+        try {
             return Storage::disk($disk)->url($value);
+        } catch (\Throwable $e) {
+            try {
+                return Storage::disk('public')->url($value);
+            } catch (\Throwable $e2) {
+                return null;
+            }
         }
-        if ($disk !== 'public' && Storage::disk('public')->exists($value)) {
-            return Storage::disk('public')->url($value);
-        }
-        return Storage::disk($disk)->url($value);
     }
 }

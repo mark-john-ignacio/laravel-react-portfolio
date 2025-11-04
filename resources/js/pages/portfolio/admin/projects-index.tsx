@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 function buildUrl(path?: string | null) {
+    // Legacy helper: falls back to local /storage path when a full URL isn't provided.
+    // Prefer using p.cover_url from the API, which already points to S3/MinIO (or a signed URL).
     if (!path) return '';
     if (/^https?:\/\//i.test(path)) return path;
     return `/storage/${path.replace(/^\/+/, '')}`;
@@ -22,9 +24,13 @@ export default function ProjectsIndex({ projects, categories }: { projects: any;
                 <div className="grid gap-4 md:grid-cols-3">
                     {projects.data.map((p: any) => (
                         <Card key={p.id} className="group flex flex-col overflow-hidden">
-                            {p.image_url && (
+                            {(p.cover_url || p.image_url) && (
                                 <div className="relative h-32 w-full overflow-hidden bg-muted">
-                                    <img src={buildUrl(p.image_url)} alt={p.title} className="object-cover h-full w-full transition group-hover:scale-105" />
+                                    <img
+                                        src={p.cover_url || buildUrl(p.image_url)}
+                                        alt={p.title}
+                                        className="object-cover h-full w-full transition group-hover:scale-105"
+                                    />
                                 </div>
                             )}
                             <CardHeader className="pb-2 space-y-1">

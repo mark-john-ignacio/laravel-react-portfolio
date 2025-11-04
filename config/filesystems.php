@@ -15,6 +15,11 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    // Optional: Serve signed URLs instead of public URLs (useful for private MinIO/S3 buckets)
+    // Accept both plural and singular env names to avoid misconfiguration
+    'signed_urls' => env('STORAGE_SIGNED_URL', false),
+    // TTL in seconds for signed URLs
+    'signed_ttl' => env('STORAGE_SIGNED_TTL', 600),
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
