@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 
@@ -78,13 +79,34 @@ class Project extends Model
 
     public function getCoverUrlAttribute(): ?string
     {
-        return $this->image_url ? asset('storage/'.$this->image_url) : null;
+        if (! $this->image_url) return null;
+        $path = $this->image_url;
+        if (str_starts_with($path, 'http')) return $path;
+        $disk = config('filesystems.default');
+        // Prefer current default disk; fall back to 'public' for legacy files
+        if (Storage::disk($disk)->exists($path)) {
+            return Storage::disk($disk)->url($path);
+        }
+        if ($disk !== 'public' && Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->url($path);
+        }
+        // As a last resort, attempt URL on default disk
+        return Storage::disk($disk)->url($path);
     }
 
     public function getGalleryUrlsAttribute(): array
     {
-        return array_map(function ($path) {
-            return asset('storage/'.$path);
-        }, $this->gallery_images ?? []);
+        $disk = config('filesystems.default');
+        $images = $this->gallery_images ?? [];
+        return array_map(function ($path) use ($disk) {
+            if (str_starts_with($path, 'http')) return $path;
+            if (Storage::disk($disk)->exists($path)) {
+                return Storage::disk($disk)->url($path);
+            }
+            if ($disk !== 'public' && Storage::disk('public')->exists($path)) {
+                return Storage::disk('public')->url($path);
+            }
+            return Storage::disk($disk)->url($path);
+        }, $images);
     }
 }

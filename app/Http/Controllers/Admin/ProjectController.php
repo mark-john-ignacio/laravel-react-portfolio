@@ -42,16 +42,18 @@ class ProjectController extends Controller
         $data = $request->validated();
         $categories = $data['categories'] ?? [];
         unset($data['categories']);
+        $disk = config('filesystems.default');
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-            $data['image_url'] = $file->storeAs('portfolio/projects/cover', $name, 'public');
+            // Store on configured disk (public local or s3/minio)
+            $data['image_url'] = $file->storeAs('portfolio/projects/cover', $name, $disk);
         }
         if ($request->hasFile('gallery')) {
             $galleryPaths = [];
             foreach ($request->file('gallery') as $file) {
                 $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-                $galleryPaths[] = $file->storeAs('portfolio/projects/gallery', $name, 'public');
+                $galleryPaths[] = $file->storeAs('portfolio/projects/gallery', $name, $disk);
             }
             $data['gallery_images'] = $galleryPaths;
         }
@@ -77,15 +79,16 @@ class ProjectController extends Controller
         $data = $request->validated();
         $categories = $data['categories'] ?? [];
         unset($data['categories']);
+        $disk = config('filesystems.default');
         // Handle primary image replacement
         if ($request->hasFile('image')) {
             // delete old
-            if ($project->image_url && Storage::disk('public')->exists($project->image_url)) {
-                Storage::disk('public')->delete($project->image_url);
+            if ($project->image_url && Storage::disk($disk)->exists($project->image_url)) {
+                Storage::disk($disk)->delete($project->image_url);
             }
             $file = $request->file('image');
             $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-            $data['image_url'] = $file->storeAs('portfolio/projects/cover', $name, 'public');
+            $data['image_url'] = $file->storeAs('portfolio/projects/cover', $name, $disk);
         }
 
         // Existing gallery removal (frontend may send removed_gallery as array or JSON string)
@@ -101,8 +104,8 @@ class ProjectController extends Controller
             }
             if ($removed) {
                 foreach ($removed as $path) {
-                    if (in_array($path, $existing, true) && Storage::disk('public')->exists($path)) {
-                        Storage::disk('public')->delete($path);
+                    if (in_array($path, $existing, true) && Storage::disk($disk)->exists($path)) {
+                        Storage::disk($disk)->delete($path);
                     }
                 }
                 $existing = array_values(array_diff($existing, $removed));
@@ -113,7 +116,7 @@ class ProjectController extends Controller
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $file) {
                 $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-                $existing[] = $file->storeAs('portfolio/projects/gallery', $name, 'public');
+                $existing[] = $file->storeAs('portfolio/projects/gallery', $name, $disk);
             }
         }
 

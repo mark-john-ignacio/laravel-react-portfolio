@@ -62,7 +62,8 @@ class PersonalInfo extends Model
     {
         // Support storing uploaded file objects or string paths
         if (is_file($value)) {
-            $path = Storage::disk('public')->putFile('portfolio/profile', $value);
+            $disk = config('filesystems.default');
+            $path = Storage::disk($disk)->putFile('portfolio/profile', $value);
             $this->attributes['profile_image_url'] = $path;
         } else {
             $this->attributes['profile_image_url'] = $value;
@@ -73,6 +74,13 @@ class PersonalInfo extends Model
     {
         if (!$value) return null;
         if (str_starts_with($value, 'http')) return $value;
-        return Storage::disk('public')->url($value);
+        $disk = config('filesystems.default');
+        if (Storage::disk($disk)->exists($value)) {
+            return Storage::disk($disk)->url($value);
+        }
+        if ($disk !== 'public' && Storage::disk('public')->exists($value)) {
+            return Storage::disk('public')->url($value);
+        }
+        return Storage::disk($disk)->url($value);
     }
 }
