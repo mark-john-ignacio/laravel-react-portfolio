@@ -1,8 +1,8 @@
-import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link } from '@inertiajs/react';
 
 function buildUrl(path?: string | null) {
     // Legacy helper: falls back to local /storage path when a full URL isn't provided.
@@ -14,12 +14,14 @@ function buildUrl(path?: string | null) {
 
 export default function ProjectsIndex({ projects, categories }: { projects: any; categories: any[] }) {
     return (
-        <AppLayout breadcrumbs={[{ title: 'Projects', href: '/admin/portfolio/projects' }]}>            
+        <AppLayout breadcrumbs={[{ title: 'Projects', href: '/admin/portfolio/projects' }]}>
             <Head title="Projects" />
-            <div className="p-4 space-y-6">
-                <div className="flex justify-between items-center">
+            <div className="space-y-6 p-4">
+                <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Projects</h1>
-                    <Button asChild size="sm"><Link href="/admin/portfolio/projects/create">New Project</Link></Button>
+                    <Button asChild size="sm">
+                        <Link href="/admin/portfolio/projects/create">New Project</Link>
+                    </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
                     {projects.data.map((p: any) => (
@@ -29,27 +31,43 @@ export default function ProjectsIndex({ projects, categories }: { projects: any;
                                     <img
                                         src={p.cover_url || buildUrl(p.image_url)}
                                         alt={p.title}
-                                        className="object-cover h-full w-full transition group-hover:scale-105"
+                                        className="h-full w-full object-cover transition group-hover:scale-105"
                                     />
                                 </div>
                             )}
-                            <CardHeader className="pb-2 space-y-1">
+                            <CardHeader className="space-y-1 pb-2">
                                 <div className="flex items-start justify-between gap-2">
-                                    <CardTitle className="text-sm font-medium leading-tight line-clamp-2">{p.title}</CardTitle>
+                                    <CardTitle className="line-clamp-2 text-sm leading-tight font-medium">{p.title}</CardTitle>
                                     <div className="flex flex-col items-end gap-1">
-                                        {p.is_featured && <Badge variant="outline" className="text-[10px]">Featured</Badge>}
-                                        <Badge variant={p.is_published ? 'secondary' : 'outline'} className="text-[10px]">{p.is_published ? 'Published' : 'Draft'}</Badge>
+                                        {p.is_featured && (
+                                            <Badge variant="outline" className="text-[10px]">
+                                                Featured
+                                            </Badge>
+                                        )}
+                                        <Badge variant={p.is_published ? 'secondary' : 'outline'} className="text-[10px]">
+                                            {p.is_published ? 'Published' : 'Draft'}
+                                        </Badge>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="flex flex-col gap-3 text-xs">
-                                <p className="text-muted-foreground line-clamp-3 min-h-[48px]">{p.short_description}</p>
+                                <p className="line-clamp-3 min-h-[48px] text-muted-foreground">{p.short_description}</p>
                                 <div className="flex flex-wrap gap-1">
-                                    {(p.technologies || []).slice(0,4).map((t: string) => <Badge key={t} variant="secondary" className="text-[10px] px-2 py-0">{t}</Badge>)}
-                                    {(p.technologies || []).length > 4 && <Badge variant="outline" className="text-[10px] px-2 py-0">+{(p.technologies || []).length - 4}</Badge>}
+                                    {(p.technologies || []).slice(0, 4).map((t: string) => (
+                                        <Badge key={t} variant="secondary" className="px-2 py-0 text-[10px]">
+                                            {t}
+                                        </Badge>
+                                    ))}
+                                    {(p.technologies || []).length > 4 && (
+                                        <Badge variant="outline" className="px-2 py-0 text-[10px]">
+                                            +{(p.technologies || []).length - 4}
+                                        </Badge>
+                                    )}
                                 </div>
-                                <div className="mt-auto flex justify-between items-center pt-1">
-                                    <Link href={`/admin/portfolio/projects/${p.id}/edit`} className="text-[11px] underline">Edit</Link>
+                                <div className="mt-auto flex items-center justify-between pt-1">
+                                    <Link href={`/admin/portfolio/projects/${p.id}/edit`} className="text-[11px] underline">
+                                        Edit
+                                    </Link>
                                     <span className="text-[10px] text-muted-foreground">{p.reading_time} min read</span>
                                 </div>
                             </CardContent>
