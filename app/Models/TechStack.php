@@ -21,7 +21,8 @@ class TechStack extends Model
 
     public function scopeFeatured($query)
     {
-        return $query->where('is_featured', true)->orderBy('sort_order');
+        // Avoid boolean param binding under PDO emulation (PgSQL expects true/false, not 1/0)
+        return $query->whereRaw('is_featured = true')->orderBy('sort_order');
     }
 
     public function scopeOrdered($query)

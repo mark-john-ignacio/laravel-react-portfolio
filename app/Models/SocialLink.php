@@ -20,7 +20,8 @@ class SocialLink extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)->orderBy('sort_order');
+        // Use a raw boolean literal to avoid PDO emulated prepare casting true->1 on PgSQL
+        return $query->whereRaw('is_active = true')->orderBy('sort_order');
     }
 
     public function getIconHtmlAttribute(): string

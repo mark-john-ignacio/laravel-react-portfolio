@@ -95,6 +95,10 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            // Emulate prepared statements to support transaction poolers (e.g., Supabase PgBouncer)
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                PDO::ATTR_EMULATE_PREPARES => env('DB_PGSQL_EMULATE_PREPARES', true),
+            ]) : [],
         ],
 
         'sqlsrv' => [

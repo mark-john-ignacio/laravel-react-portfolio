@@ -19,8 +19,8 @@ class ProjectController extends Controller
     public function index(Request $request): Response
     {
         $query = Project::query()->with('categories');
-        if ($request->boolean('featured')) $query->where('is_featured', true);
-        if ($request->boolean('unpublished')) $query->where('is_published', false);
+    if ($request->boolean('featured')) $query->whereRaw('is_featured = true');
+    if ($request->boolean('unpublished')) $query->whereRaw('is_published = false');
         if ($category = $request->get('category')) {
             $query->whereHas('categories', fn($q) => $q->where('slug', $category));
         }

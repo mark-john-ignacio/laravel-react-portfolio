@@ -38,12 +38,14 @@ class Project extends Model
 
     public function scopeFeatured($query)
     {
-        return $query->where('is_featured', true);
+        // Use explicit boolean literal for PostgreSQL under PDO emulation
+        return $query->whereRaw('is_featured = true');
     }
 
     public function scopePublished($query)
     {
-        return $query->where('is_published', true);
+        // Use explicit boolean literal for PostgreSQL under PDO emulation
+        return $query->whereRaw('is_published = true');
     }
 
     public function scopeOrdered($query)
