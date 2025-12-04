@@ -2,9 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { HERO_PADDING } from '@/data/layout';
 
-interface HeroSectionProps { motionVariants: { container: any; item: any }; }
+interface HeroSectionProps {
+  motionVariants: { container: any; item: any };
+  greeting?: string | null;
+  name?: string | null;
+  tagline?: string | null; // hero tagline line 2
+  blurb?: string | null; // short bio paragraph
+  ctaHref?: string;
+  ctaLabel?: string;
+}
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ motionVariants }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ motionVariants, greeting, name, tagline, blurb, ctaHref = '#work', ctaLabel = 'Check out my work!' }) => {
   const { scrollYProgress } = useScroll();
   const spring1 = useSpring(scrollYProgress, { stiffness: 50, damping: 20 });
   const spring2 = useSpring(scrollYProgress, { stiffness: 70, damping: 25 });
@@ -39,12 +47,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ motionVariants }) => {
         </>
       )}
       <motion.div variants={motionVariants.container} initial="hidden" animate="show" className="relative z-10 max-w-3xl">
-        <motion.p variants={motionVariants.item} className="mb-4 font-mono text-sm text-[#64ffda]">Hi, my name is</motion.p>
-        <motion.h1 variants={motionVariants.item} className="mb-2 text-5xl font-extrabold leading-tight text-[#e6f1ff] sm:text-6xl md:text-7xl">Mark John Ignacio.</motion.h1>
-        <motion.h2 variants={motionVariants.item} className="mb-6 text-4xl font-semibold text-[#8892b0] sm:text-5xl">I build things for the web.</motion.h2>
-        <motion.p variants={motionVariants.item} className="mb-10 max-w-xl text-[#8892b0]">I'm a Laravel + React developer focused on crafting performant, accessible, and visually polished web applications. I love bridging elegant frontend experiences with robust backend architecture—shipping features that are maintainable and delightful to use.</motion.p>
+        <motion.p variants={motionVariants.item} className="mb-4 font-mono text-sm text-[#64ffda]">{greeting || 'Hi, my name is'}</motion.p>
+        <motion.h1 variants={motionVariants.item} className="mb-2 text-5xl font-extrabold leading-tight text-[#e6f1ff] sm:text-6xl md:text-7xl">{name || 'Your Name'}.</motion.h1>
+        { (tagline || 'I build things for the web.') && (
+          <motion.h2 variants={motionVariants.item} className="mb-6 text-4xl font-semibold text-[#8892b0] sm:text-5xl">{tagline || 'I build things for the web.'}</motion.h2>
+        ) }
+        { (blurb || "I'm a full stack developer focused on crafting performant, accessible, and visually polished web applications.") && (
+          <motion.p variants={motionVariants.item} className="mb-10 max-w-xl text-[#8892b0]">{blurb || "I'm a full stack developer focused on crafting performant, accessible, and visually polished web applications."}</motion.p>
+        ) }
         <motion.div variants={motionVariants.item}>
-          <a href="#work" className="inline-block rounded border border-[#64ffda] px-6 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50">Check out my work!</a>
+          <a href={ctaHref} className="inline-block rounded border border-[#64ffda] px-6 py-3 font-mono text-sm text-[#64ffda] transition hover:bg-[#64ffda]/10 focus:outline-none focus:ring-2 focus:ring-[#64ffda]/50">{ctaLabel}</a>
         </motion.div>
       </motion.div>
     </section>

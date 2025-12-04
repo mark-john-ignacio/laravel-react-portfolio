@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\StoreProjectRequest;
 use App\Http\Requests\Admin\UpdateProjectRequest;
 use App\Models\Project;
 use App\Models\ProjectCategory;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -41,12 +43,15 @@ class ProjectController extends Controller
         $categories = $data['categories'] ?? [];
         unset($data['categories']);
         if ($request->hasFile('image')) {
-            $data['image_url'] = $request->file('image')->store('portfolio/projects/cover', 'public');
+            $file = $request->file('image');
+            $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
+            $data['image_url'] = $file->storeAs('portfolio/projects/cover', $name, 'public');
         }
         if ($request->hasFile('gallery')) {
             $galleryPaths = [];
             foreach ($request->file('gallery') as $file) {
-                $galleryPaths[] = $file->store('portfolio/projects/gallery', 'public');
+                $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
+                $galleryPaths[] = $file->storeAs('portfolio/projects/gallery', $name, 'public');
             }
             $data['gallery_images'] = $galleryPaths;
         }
@@ -72,16 +77,50 @@ class ProjectController extends Controller
         $data = $request->validated();
         $categories = $data['categories'] ?? [];
         unset($data['categories']);
+        // Handle primary image replacement
         if ($request->hasFile('image')) {
-            $data['image_url'] = $request->file('image')->store('portfolio/projects/cover', 'public');
-        }
-        if ($request->hasFile('gallery')) {
-            $galleryPaths = [];
-            foreach ($request->file('gallery') as $file) {
-                $galleryPaths[] = $file->store('portfolio/projects/gallery', 'public');
+            // delete old
+            if ($project->image_url && Storage::disk('public')->exists($project->image_url)) {
+                Storage::disk('public')->delete($project->image_url);
             }
-            $data['gallery_images'] = $galleryPaths;
+            $file = $request->file('image');
+            $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
+            $data['image_url'] = $file->storeAs('portfolio/projects/cover', $name, 'public');
         }
+
+        // Existing gallery removal (frontend may send removed_gallery as array or JSON string)
+        $existing = $project->gallery_images ?? [];
+        $removedInput = $request->input('removed_gallery');
+        if ($removedInput) {
+            if (is_string($removedInput)) {
+                $removed = json_decode($removedInput, true) ?: [];
+            } elseif (is_array($removedInput)) {
+                $removed = $removedInput;
+            } else {
+                $removed = [];
+            }
+            if ($removed) {
+                foreach ($removed as $path) {
+                    if (in_array($path, $existing, true) && Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+                $existing = array_values(array_diff($existing, $removed));
+            }
+        }
+
+        // New gallery additions
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
+                $existing[] = $file->storeAs('portfolio/projects/gallery', $name, 'public');
+            }
+        }
+
+        if (!empty($existing)) {
+            $data['gallery_images'] = $existing; // preserves existing + new minus removed
+        }
+
         $project->update($data);
         if ($categories) {
             $project->categories()->sync($categories);

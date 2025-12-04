@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class Project extends Model
 {
@@ -22,6 +23,11 @@ class Project extends Model
         'is_featured' => 'boolean',
         'is_published' => 'boolean',
         'view_count' => 'integer',
+    ];
+
+    protected $appends = [
+        'cover_url',
+        'gallery_urls',
     ];
 
     public function categories()
@@ -64,5 +70,21 @@ class Project extends Model
                 $project->slug = $slug;
             }
         });
+
+        $flush = function () { Cache::forget('public_portfolio_payload_v1'); };
+        static::saved($flush);
+        static::deleted($flush);
+    }
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        return $this->image_url ? asset('storage/'.$this->image_url) : null;
+    }
+
+    public function getGalleryUrlsAttribute(): array
+    {
+        return array_map(function ($path) {
+            return asset('storage/'.$path);
+        }, $this->gallery_images ?? []);
     }
 }

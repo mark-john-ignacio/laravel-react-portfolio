@@ -1,10 +1,10 @@
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ProjectItem } from '@/data/projects';
+import { ProjectItemData } from '@/sections/ProjectsSection';
 
 interface ProjectDialogProps {
-  project: ProjectItem | null;
+  project: ProjectItemData | null;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -41,7 +41,7 @@ export const ProjectDialog: React.FC<ProjectDialogProps> = ({ project, onOpenCha
                   </Dialog.Close>
                 </div>
                 <div className="mb-4 aspect-video w-full overflow-hidden rounded bg-[#0f223d]">
-                  <img src={project.image} alt={project.title} loading="lazy" className="h-full w-full object-cover" />
+                  <img src={project.image || '/images/placeholders/feature-1.svg'} alt={project.title} loading="lazy" className="h-full w-full object-cover" />
                 </div>
                 <p className="mb-4 text-[#8892b0] text-sm leading-relaxed">{project.longDescription || project.description}</p>
                 <ul className="mb-6 flex flex-wrap gap-3 font-mono text-[11px] text-[#8892b0]">

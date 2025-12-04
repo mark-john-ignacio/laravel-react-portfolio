@@ -1,22 +1,36 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { EXPERIENCES } from '@/data/experiences';
+// Dynamic experiences now passed via props
 import { Section, SectionHeading } from '@/components/Section';
 
-export const ExperienceSection: React.FC = () => {
+export interface ExperienceItemData {
+  company: string;
+  role: string;
+  period: string;
+  bullets: string[];
+  url?: string | null;
+}
+
+interface ExperienceSectionProps {
+  experiences: ExperienceItemData[];
+  headingIndex?: number;
+}
+
+export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences, headingIndex = 2 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const active = EXPERIENCES[activeIndex];
+  const active = experiences[activeIndex];
 
   const onKeyDown = (e: React.KeyboardEvent) => {
+    if (experiences.length === 0) return;
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       e.preventDefault();
-      const next = (activeIndex + 1) % EXPERIENCES.length;
+      const next = (activeIndex + 1) % experiences.length;
       setActiveIndex(next);
       tabRefs.current[next]?.focus();
     } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
       e.preventDefault();
-      const prev = (activeIndex - 1 + EXPERIENCES.length) % EXPERIENCES.length;
+      const prev = (activeIndex - 1 + experiences.length) % experiences.length;
       setActiveIndex(prev);
       tabRefs.current[prev]?.focus();
     }
@@ -24,11 +38,11 @@ export const ExperienceSection: React.FC = () => {
 
   return (
     <Section id="experience" aria-labelledby="experience-heading">
-      <SectionHeading id="experience-heading" index={2}>Where I've Worked</SectionHeading>
+      <SectionHeading id="experience-heading" index={headingIndex}>Where I've Worked</SectionHeading>
       <div className="grid gap-10 md:grid-cols-[220px_1fr]">
         <div role="tablist" aria-label="Job history" className="relative">
           <ul className="flex md:flex-col overflow-x-auto md:overflow-visible -mx-2 md:mx-0 pb-2 md:pb-0 pr-4 md:pr-0">
-            {EXPERIENCES.map((exp, i) => {
+            {experiences.map((exp, i) => {
               const isActive = i === activeIndex;
               return (
                 <li key={exp.company} className="px-2 md:px-0">

@@ -21,6 +21,7 @@ class PersonalInfoSeeder extends Seeder
             'bio_long' => "I'm a full stack developer specializing in Laravel, React, and AWS cloud services. I enjoy crafting scalable architectures, optimizing performance, and delivering polished, accessible user interfaces. My experience spans financial applications, serverless architectures, and modern DevOps workflows.",
             'hero_greeting' => 'Hi, I\'m Mark',
             'hero_tagline' => 'I design and develop modern web solutions.',
+            'contact_blurb' => 'I\'m currently open to new opportunities and collaborations. Whether you have a question, a project idea, or just want to connect, my inbox is always open — I read every message.',
             'availability_status' => 'open_for_opportunities',
             'resume_url' => '/resume.pdf',
             'profile_image_url' => null,

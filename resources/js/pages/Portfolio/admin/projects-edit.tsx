@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,51 +9,158 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { TagInput } from '@/components/ui/tag-input';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { Badge } from '@/components/ui/badge';
+import { GripVertical } from 'lucide-react';
 
 type ProjectForm = {
     _method: 'PUT';
     title: string;
     slug: string;
     short_description: string;
-    description: string;
-    role: string;
-    start_date: string;
-    end_date: string;
+    long_description: string; // renamed from description
+    technologies: string[];
+    features: string[];
+    challenges: string[];
+    github_url: string;
+    live_url: string; // consolidated demo/website
+    image: File | null;
+    gallery: File[];
     is_featured: boolean;
     is_published: boolean;
-    technologies: string[];
-    project_category_ids: number[];
-    github_url: string;
-    demo_url: string;
-    website_url: string;
-    image: File | null;
-    reading_time_override: string;
+    sort_order: number;
+    categories: number[]; // renamed from project_category_ids
+    removed_gallery: string[]; // paths of removed existing gallery images
 };
 
+function buildUrl(path?: string | null) {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return `/storage/${path.replace(/^\/+/, '')}`;
+}
+
 export default function ProjectsEdit({ project, categories }: { project: any; categories: any[] }) {
-    const { data, setData, post, processing, errors } = useForm<ProjectForm>({
+    const { data, setData, post, processing, errors, transform } = useForm<ProjectForm>({
         _method: 'PUT',
         title: project.title || '',
         slug: project.slug || '',
         short_description: project.short_description || '',
-        description: project.description || '',
-        role: project.role || '',
-        start_date: project.start_date || '',
-        end_date: project.end_date || '',
+        long_description: project.long_description || project.description || '',
+        technologies: project.technologies || [],
+        features: project.features || [],
+        challenges: project.challenges || [],
+        github_url: project.github_url || '',
+        live_url: project.live_url || project.demo_url || project.website_url || '',
+        image: null,
+        gallery: [],
         is_featured: project.is_featured || false,
         is_published: project.is_published || false,
-        technologies: project.technologies || [],
-        project_category_ids: project.categories?.map((c: any) => c.id) || [],
-        github_url: project.github_url || '',
-        demo_url: project.demo_url || '',
-        website_url: project.website_url || '',
-        image: null as File | null,
-        reading_time_override: project.reading_time_override || ''
+        sort_order: project.sort_order ?? 0,
+        categories: project.categories?.map((c: any) => c.id) || [],
+        removed_gallery: [],
     });
+
+    const [featureInput, setFeatureInput] = useState('');
+    const [challengeInput, setChallengeInput] = useState('');
+    const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+    const [slugTouched, setSlugTouched] = useState<boolean>(Boolean(project.slug));
+    const debounceRef = useRef<number | undefined>(undefined);
+    const [showPreview, setShowPreview] = useState(false);
+    const dragIndex = useRef<number | null>(null);
+    const [existingGallery, setExistingGallery] = useState<string[]>(project.gallery_images || []);
+    const [removedGallery, setRemovedGallery] = useState<string[]>([]);
+
+    function onGalleryChange(list: File[]) { setGalleryFiles(list); }
+    function handleGalleryInput(e: React.ChangeEvent<HTMLInputElement>) {
+        const files = e.target.files ? Array.from(e.target.files) : [];
+        if (!files.length) return;
+        onGalleryChange([...galleryFiles, ...files]);
+    }
+    function removeGalleryItem(idx: number) { onGalleryChange(galleryFiles.filter((_, i) => i !== idx)); }
+    function handleDragStart(idx: number) { dragIndex.current = idx; }
+    function handleDragEnter(idx: number) {
+        if (dragIndex.current === null || dragIndex.current === idx) return;
+        const updated = [...galleryFiles];
+        const [moved] = updated.splice(dragIndex.current, 1);
+        updated.splice(idx, 0, moved);
+        dragIndex.current = idx;
+        onGalleryChange(updated);
+    }
+    function handleDragEnd() { dragIndex.current = null; }
+
+    function removeExistingImage(img: string) {
+        if (!confirm('Remove this image from gallery?')) return;
+        setExistingGallery(prev => prev.filter(i => i !== img));
+        setRemovedGallery(prev => {
+            const next = [...prev, img];
+            setData('removed_gallery', next); // keep inertia state in sync
+            return next;
+        });
+    }
+
+    function slugify(value: string) {
+        return value
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+    }
+
+    useEffect(() => {
+        if (slugTouched) return;
+        if (!data.title) return;
+        window.clearTimeout(debounceRef.current);
+        debounceRef.current = window.setTimeout(() => {
+            if (!data.slug) {
+                setData('slug', slugify(data.title));
+            }
+        }, 400);
+        return () => window.clearTimeout(debounceRef.current);
+    }, [data.title]);
 
     function submit(e: FormEvent) {
         e.preventDefault();
-        post(`/admin/portfolio/projects/${project.id}`);
+        transform(original => ({ ...original, gallery: galleryFiles, removed_gallery: removedGallery }));
+        post(`/admin/portfolio/projects/${project.id}`, {
+            forceFormData: true,
+            onFinish: () => transform(d => d)
+        });
+    }
+
+    function addFeature() {
+        if (!featureInput.trim()) return;
+        setData('features', [...data.features, featureInput.trim()]);
+        setFeatureInput('');
+    }
+    function addChallenge() {
+        if (!challengeInput.trim()) return;
+        setData('challenges', [...data.challenges, challengeInput.trim()]);
+        setChallengeInput('');
+    }
+
+    function applyMd(format: 'bold' | 'italic' | 'link') {
+        if (showPreview) return;
+        const textarea = document.getElementById('long_description') as HTMLTextAreaElement | null;
+        if (!textarea) return;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const original = data.long_description;
+        let before = original.slice(0, start);
+        let selected = original.slice(start, end) || (format === 'link' ? 'text' : 'your text');
+        let after = original.slice(end);
+        let inserted = '';
+        switch (format) {
+            case 'bold': inserted = `**${selected}**`; break;
+            case 'italic': inserted = `*${selected}*`; break;
+            case 'link': inserted = `[${selected}](https://)`; break;
+        }
+        const next = before + inserted + after;
+        setData('long_description', next);
+        setTimeout(() => {
+            textarea.focus();
+            const cursorPos = before.length + inserted.length;
+            textarea.setSelectionRange(cursorPos, cursorPos);
+        }, 0);
     }
 
     return (
@@ -69,6 +176,7 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
                 </div>
                 <div className="grid gap-6 md:grid-cols-3 items-start">
                     <div className="space-y-6 md:col-span-2">
+                        {/* Core Details */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Core Details</CardTitle>
@@ -82,7 +190,7 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="slug">Slug (optional)</Label>
-                                        <Input id="slug" value={data.slug} onChange={e => setData('slug', e.target.value)} />
+                                        <Input id="slug" value={data.slug} onChange={e => { setSlugTouched(true); setData('slug', e.target.value); }} placeholder={slugify(data.title || '')} />
                                         {errors.slug && <p className="text-xs text-destructive">{errors.slug}</p>}
                                     </div>
                                 </div>
@@ -92,111 +200,190 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
                                     {errors.short_description && <p className="text-xs text-destructive">{errors.short_description}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Description (Markdown)</Label>
-                                    <Textarea id="description" className="min-h-[180px]" value={data.description} onChange={e => setData('description', e.target.value)} />
-                                    {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+                                    <Label htmlFor="long_description">Long Description (Markdown)</Label>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <button type="button" onClick={() => setShowPreview(p=>!p)} className="text-[11px] underline">
+                                            {showPreview ? 'Edit Markdown' : 'Preview'}
+                                        </button>
+                                    </div>
+                                    {!showPreview && (
+                                        <div className="flex gap-2 mb-2">
+                                            <Button type="button" variant="secondary" size="sm" className="h-6 px-2 text-[11px]" onClick={() => applyMd('bold')}>**B**</Button>
+                                            <Button type="button" variant="secondary" size="sm" className="h-6 px-2 text-[11px] italic" onClick={() => applyMd('italic')}>/i/</Button>
+                                            <Button type="button" variant="secondary" size="sm" className="h-6 px-2 text-[11px]" onClick={() => applyMd('link')}>link</Button>
+                                        </div>
+                                    )}
+                                    {showPreview ? (
+                                        <div className="prose dark:prose-invert max-w-none border rounded-md p-3 text-sm bg-muted/30 min-h-[220px] overflow-auto" dangerouslySetInnerHTML={{ __html: renderMarkdown(data.long_description) }} />
+                                    ) : (
+                                        <Textarea id="long_description" className="min-h-[220px]" value={data.long_description} onChange={e => setData('long_description', e.target.value)} />
+                                    )}
+                                    {errors.long_description && <p className="text-xs text-destructive">{errors.long_description}</p>}
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Timeline & Role</CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid gap-4 md:grid-cols-3">
-                                <div className="space-y-2 md:col-span-1">
-                                    <Label htmlFor="role">Role</Label>
-                                    <Input id="role" value={data.role} onChange={e => setData('role', e.target.value)} />
-                                    {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="start_date">Start Date</Label>
-                                    <Input type="date" id="start_date" value={data.start_date} onChange={e => setData('start_date', e.target.value)} />
-                                    {errors.start_date && <p className="text-xs text-destructive">{errors.start_date}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="end_date">End Date</Label>
-                                    <Input type="date" id="end_date" value={data.end_date || ''} onChange={e => setData('end_date', e.target.value)} />
-                                    {errors.end_date && <p className="text-xs text-destructive">{errors.end_date}</p>}
-                                </div>
-                            </CardContent>
-                        </Card>
+
+                        {/* Content Metadata */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Content Metadata</CardTitle>
                             </CardHeader>
-                            <CardContent className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label>Featured</Label>
-                                    <div className="flex items-center gap-2">
-                                        <Switch checked={data.is_featured} onCheckedChange={(v:boolean) => setData('is_featured', v)} id="is_featured" />
-                                        <Label htmlFor="is_featured" className="text-xs text-muted-foreground">Highlight on homepage</Label>
+                            <CardContent className="space-y-6">
+                                <div className="grid gap-4 md:grid-cols-3">
+                                    <div className="flex items-center justify-between border rounded-md p-3">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-sm">Featured</Label>
+                                            <p className="text-[11px] text-muted-foreground">Homepage highlight</p>
+                                        </div>
+                                        <Switch checked={data.is_featured} onCheckedChange={v => setData('is_featured', v)} />
+                                    </div>
+                                    <div className="flex items-center justify-between border rounded-md p-3">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-sm">Published</Label>
+                                            <p className="text-[11px] text-muted-foreground">Public visibility</p>
+                                        </div>
+                                        <Switch checked={data.is_published} onCheckedChange={v => setData('is_published', v)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="sort_order">Sort Order</Label>
+                                        <Input id="sort_order" type="number" value={data.sort_order} onChange={e => setData('sort_order', Number(e.target.value))} />
+                                        {errors.sort_order && <p className="text-xs text-destructive">{errors.sort_order}</p>}
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Published</Label>
-                                    <div className="flex items-center gap-2">
-                                        <Switch checked={data.is_published} onCheckedChange={(v:boolean) => setData('is_published', v)} id="is_published" />
-                                        <Label htmlFor="is_published" className="text-xs text-muted-foreground">Toggle visibility</Label>
-                                    </div>
+                                    <Label>Categories</Label>
+                                    <MultiSelect
+                                        options={categories.map(c => ({ value: c.id, label: c.name }))}
+                                        value={data.categories}
+                                        onChange={(vals) => setData('categories', vals as number[])}
+                                        placeholder="Select categories"
+                                    />
+                                    {errors.categories && <p className="text-xs text-destructive">{errors.categories}</p>}
                                 </div>
-                                <div className="space-y-2 md:col-span-2">
+                                <div className="space-y-2">
                                     <Label>Technologies</Label>
                                     <TagInput value={data.technologies} onChange={tags => setData('technologies', tags)} />
                                     {errors.technologies && <p className="text-xs text-destructive">{errors.technologies}</p>}
                                 </div>
-                                <div className="space-y-2 md:col-span-2">
-                                    <Label>Categories</Label>
-                                    <MultiSelect
-                                        options={categories.map(c => ({ value: c.id, label: c.name }))}
-                                        value={data.project_category_ids}
-                                        onChange={(vals) => setData('project_category_ids', vals as number[])}
-                                        placeholder="Select categories"
-                                    />
-                                    {errors.project_category_ids && <p className="text-xs text-destructive">{errors.project_category_ids}</p>}
-                                </div>
                             </CardContent>
                         </Card>
+
+                        {/* Links & Media */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Links & Media</CardTitle>
                             </CardHeader>
                             <CardContent className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
+                                <div className="space-y-2 md:col-span-1">
                                     <Label htmlFor="github_url">GitHub URL</Label>
                                     <Input id="github_url" value={data.github_url} onChange={e => setData('github_url', e.target.value)} />
                                     {errors.github_url && <p className="text-xs text-destructive">{errors.github_url}</p>}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="demo_url">Demo URL</Label>
-                                    <Input id="demo_url" value={data.demo_url} onChange={e => setData('demo_url', e.target.value)} />
-                                    {errors.demo_url && <p className="text-xs text-destructive">{errors.demo_url}</p>}
+                                <div className="space-y-2 md:col-span-1">
+                                    <Label htmlFor="live_url">Live URL</Label>
+                                    <Input id="live_url" value={data.live_url} onChange={e => setData('live_url', e.target.value)} />
+                                    {errors.live_url && <p className="text-xs text-destructive">{errors.live_url}</p>}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="website_url">Website URL</Label>
-                                    <Input id="website_url" value={data.website_url} onChange={e => setData('website_url', e.target.value)} />
-                                    {errors.website_url && <p className="text-xs text-destructive">{errors.website_url}</p>}
-                                </div>
-                                <div className="space-y-2">
+                                <div className="space-y-2 md:col-span-1">
                                     <Label htmlFor="image">Primary Image</Label>
                                     <Input type="file" id="image" onChange={e => setData('image', e.target.files ? e.target.files[0] : null)} />
                                     {errors.image && <p className="text-xs text-destructive">{errors.image}</p>}
-                                    {project.image_path && <img src={project.image_url} alt="Current" className="max-h-24 mt-1 rounded" />}
+                                    {project.image_url && <img src={buildUrl(project.image_url)} alt="Current" className="max-h-24 mt-2 rounded" />}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="reading_time_override">Reading Time Override (mins)</Label>
-                                    <Input id="reading_time_override" value={data.reading_time_override} onChange={e => setData('reading_time_override', e.target.value)} />
-                                    {errors.reading_time_override && <p className="text-xs text-destructive">{errors.reading_time_override}</p>}
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="gallery">Gallery Images (additive)</Label>
+                                    <Input multiple type="file" id="gallery" onChange={handleGalleryInput} />
+                                    {errors.gallery && <p className="text-xs text-destructive">{errors.gallery}</p>}
+                                    {existingGallery.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {existingGallery.map((g:string) => {
+                                                const displaySrc = buildUrl(g);
+                                                return (
+                                                    <div key={g} className="relative group h-14 w-14 border rounded overflow-hidden">
+                                                        <img src={displaySrc} className="h-full w-full object-cover" />
+                                                        <button type="button" onClick={() => removeExistingImage(g)} className="absolute top-0 right-0 bg-black/60 text-white text-[10px] px-1 py-0.5 opacity-0 group-hover:opacity-100">×</button>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                    {/* removed_gallery now sent via inertia state; no hidden input needed */}
+                                    {galleryFiles.length > 0 && (
+                                        <div className="flex flex-wrap gap-3 pt-3">
+                                            {galleryFiles.map((file, i) => {
+                                                const url = URL.createObjectURL(file);
+                                                return (
+                                                    <div key={i}
+                                                         className="relative group border rounded-md overflow-hidden h-20 w-20 flex items-center justify-center bg-muted cursor-move"
+                                                         draggable
+                                                         onDragStart={() => handleDragStart(i)}
+                                                         onDragEnter={() => handleDragEnter(i)}
+                                                         onDragEnd={handleDragEnd}
+                                                         onDragOver={(e) => e.preventDefault()}>
+                                                        <img src={url} alt={file.name} className="object-cover h-full w-full pointer-events-none" />
+                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex flex-col justify-between">
+                                                            <div className="flex justify-between items-start p-1">
+                                                                <GripVertical className="h-3 w-3 text-white opacity-70" />
+                                                                <button type="button" onClick={() => removeGalleryItem(i)} className="bg-black/60 text-white text-[10px] px-1 py-0.5 rounded">×</button>
+                                                            </div>
+                                                            <span className="text-[9px] text-white/70 px-1 pb-1 truncate">{i+1}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Features & Challenges */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Features & Challenges</CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid gap-6 md:grid-cols-2">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Input placeholder="Add feature" value={featureInput} onChange={e => setFeatureInput(e.target.value)} className="h-8" />
+                                        <Button type="button" size="sm" variant="secondary" onClick={addFeature} disabled={!featureInput.trim()}>Add</Button>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {data.features.map((f,i) => (
+                                            <Badge key={i} variant="secondary" className="flex items-center gap-1">
+                                                <span className="max-w-[140px] truncate" title={f}>{f}</span>
+                                                <button type="button" onClick={() => setData('features', data.features.filter((_,idx)=>idx!==i))} className="text-[10px]">×</button>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                    {errors.features && <p className="text-xs text-destructive">{errors.features}</p>}
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Input placeholder="Add challenge" value={challengeInput} onChange={e => setChallengeInput(e.target.value)} className="h-8" />
+                                        <Button type="button" size="sm" variant="secondary" onClick={addChallenge} disabled={!challengeInput.trim()}>Add</Button>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {data.challenges.map((c,i) => (
+                                            <Badge key={i} variant="outline" className="flex items-center gap-1">
+                                                <span className="max-w-[140px] truncate" title={c}>{c}</span>
+                                                <button type="button" onClick={() => setData('challenges', data.challenges.filter((_,idx)=>idx!==i))} className="text-[10px]">×</button>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                    {errors.challenges && <p className="text-xs text-destructive">{errors.challenges}</p>}
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
+
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Quick Actions</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3 text-xs text-muted-foreground">
-                                <p>Update project details and metadata. Use feature/publish toggles below for convenience.</p>
+                                <p>Update project details and metadata. Manage visibility & feature status.</p>
                                 <div className="flex flex-col gap-2">
                                     <Button type="submit" size="sm" disabled={processing}>Save Changes</Button>
                                     <Link href={`/admin/portfolio/projects/${project.id}/toggle-featured`} method="post" as="button" className="text-[11px] underline">{project.is_featured ? 'Unfeature' : 'Feature'}</Link>
@@ -209,4 +396,25 @@ export default function ProjectsEdit({ project, categories }: { project: any; ca
             </form>
         </AppLayout>
     );
+}
+
+function renderMarkdown(src: string): string {
+    let html = src
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    html = html.replace(/^###### (.*)$/gm, '<h6>$1</h6>')
+        .replace(/^##### (.*)$/gm, '<h5>$1</h5>')
+        .replace(/^#### (.*)$/gm, '<h4>$1</h4>')
+        .replace(/^### (.*)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.*)$/gm, '<h1>$1</h1>');
+    html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline">$1</a>');
+    html = html.replace(/\n\n+/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+    return html;
 }

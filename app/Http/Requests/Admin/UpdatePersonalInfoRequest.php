@@ -22,6 +22,7 @@ class UpdatePersonalInfoRequest extends FormRequest
             'location' => ['nullable','string','max:255'],
             'bio_short' => ['nullable','string','max:500'],
             'bio_long' => ['nullable','string'],
+            'contact_blurb' => ['nullable','string','max:1000'],
             'hero_greeting' => ['nullable','string','max:255'],
             'hero_tagline' => ['nullable','string','max:500'],
             'availability_status' => ['required','string','in:available,open_for_opportunities,unavailable'],

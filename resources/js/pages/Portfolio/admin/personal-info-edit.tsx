@@ -9,7 +9,7 @@ import { Select } from '@/components/ui/select';
 
 type PersonalInfoForm = {
     name: string; title: string; tagline: string; hero_greeting: string; hero_tagline: string;
-    email: string; phone: string; bio_short: string; bio_long: string; availability_status: string;
+    email: string; phone: string; bio_short: string; bio_long: string; contact_blurb: string; availability_status: string;
 };
 export default function PersonalInfoEdit({ personalInfo }: { personalInfo: any }) {
     const initial: PersonalInfoForm = {
@@ -22,6 +22,7 @@ export default function PersonalInfoEdit({ personalInfo }: { personalInfo: any }
         phone: personalInfo.phone || '',
         bio_short: personalInfo.bio_short || '',
         bio_long: personalInfo.bio_long || '',
+        contact_blurb: personalInfo.contact_blurb || '',
         availability_status: personalInfo.availability_status || 'available'
     };
     const { data, setData, put, processing, errors } = useForm<PersonalInfoForm>(initial);
@@ -94,6 +95,12 @@ export default function PersonalInfoEdit({ personalInfo }: { personalInfo: any }
                         <div className="space-y-2">
                             <Label htmlFor="phone">Phone</Label>
                             <Input id="phone" value={data.phone} onChange={e=>setData('phone', e.target.value)} />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="contact_blurb">Contact Blurb</Label>
+                            <Textarea id="contact_blurb" className="min-h-[120px]" value={data.contact_blurb} onChange={e=>setData('contact_blurb', e.target.value)} />
+                            {errors.contact_blurb && <p className="text-xs text-destructive">{errors.contact_blurb}</p>}
+                            <p className="text-[10px] text-muted-foreground">Shown on the public Contact section below the heading. Keep it concise.</p>
                         </div>
                     </CardContent>
                 </Card>

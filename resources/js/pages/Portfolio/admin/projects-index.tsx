@@ -4,6 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+function buildUrl(path?: string | null) {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return `/storage/${path.replace(/^\/+/, '')}`;
+}
+
 export default function ProjectsIndex({ projects, categories }: { projects: any; categories: any[] }) {
     return (
         <AppLayout breadcrumbs={[{ title: 'Projects', href: '/admin/portfolio/projects' }]}>            
@@ -15,7 +21,12 @@ export default function ProjectsIndex({ projects, categories }: { projects: any;
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
                     {projects.data.map((p: any) => (
-                        <Card key={p.id} className="group flex flex-col">
+                        <Card key={p.id} className="group flex flex-col overflow-hidden">
+                            {p.image_url && (
+                                <div className="relative h-32 w-full overflow-hidden bg-muted">
+                                    <img src={buildUrl(p.image_url)} alt={p.title} className="object-cover h-full w-full transition group-hover:scale-105" />
+                                </div>
+                            )}
                             <CardHeader className="pb-2 space-y-1">
                                 <div className="flex items-start justify-between gap-2">
                                     <CardTitle className="text-sm font-medium leading-tight line-clamp-2">{p.title}</CardTitle>

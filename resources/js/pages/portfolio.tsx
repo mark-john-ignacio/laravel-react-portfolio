@@ -21,7 +21,18 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
-function PortfolioPage() {
+interface PortfolioPageProps {
+  personalInfo: any;
+  socialLinks: any[];
+  experiences: any[];
+  projects: { featured: any[]; secondary: any[] };
+  meta: { description: string; canonical: string; og_image?: string | null };
+  tech: string[];
+  tech_items?: { name: string; category?: string; featured?: boolean }[];
+}
+
+function PortfolioPage(props: PortfolioPageProps) {
+  const { personalInfo, socialLinks, experiences, projects, meta, tech, tech_items } = props as PortfolioPageProps;
   const reduceMotion = typeof window !== 'undefined' ? usePrefersReducedMotion() : false;
   // Variants adjusted based on reduced motion
   const adaptiveContainer = reduceMotion ? {} : containerVariants;
@@ -32,35 +43,34 @@ function PortfolioPage() {
   const rootClasses = 'bg-[#0a192f] text-[#ccd6f6]';
   return (
     <>
-      <Head title="Mark John Ignacio | Portfolio">
-        <meta name="description" content="Mark John Ignacio – Laravel & React developer building performant, accessible, and elegant web applications." />
-        <meta name="author" content="Mark John Ignacio" />
+      <Head title={`${personalInfo?.name ?? 'Portfolio'} | Portfolio`}>
+        <meta name="description" content={meta?.description || personalInfo?.tagline || personalInfo?.bio_short || ''} />
+        {personalInfo?.name && <meta name="author" content={personalInfo.name} />}
         <meta name="theme-color" content="#0a192f" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Mark John Ignacio | Portfolio" />
-        <meta property="og:description" content="Laravel & React developer building performant, accessible, and elegant web applications." />
-        <meta property="og:url" content="https://example.com" />
-        <meta property="og:image" content="/images/og-cover.png" />
+    <meta property="og:title" content={`${personalInfo?.name ?? 'Portfolio'} | Portfolio`} />
+        <meta property="og:description" content={meta?.description || ''} />
+        <meta property="og:url" content={meta?.canonical || ''} />
+        {meta?.og_image && <meta property="og:image" content={meta.og_image} />}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Mark John Ignacio | Portfolio" />
-        <meta name="twitter:description" content="Laravel & React developer building performant, accessible, and elegant web applications." />
-        <meta name="twitter:image" content="/images/og-cover.png" />
-        <link rel="canonical" href="https://example.com" />
+        <meta name="twitter:title" content={`${personalInfo?.name ?? 'Portfolio'} | Portfolio`} />
+        <meta name="twitter:description" content={meta?.description || ''} />
+        {meta?.og_image && <meta name="twitter:image" content={meta.og_image} />}
+        <link rel="canonical" href={meta?.canonical || ''} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
         <script type="application/ld+json">{`
           {
             "@context": "https://schema.org",
             "@type": "Person",
-            "name": "Mark John Ignacio",
-            "url": "https://example.com",
-            "email": "mailto:Markme44.mm@gmail.com",
-            "jobTitle": "Full Stack Developer",
+            "name": ${JSON.stringify(personalInfo?.name || '')},
+            "url": ${JSON.stringify(meta?.canonical || '')},
+            "email": ${JSON.stringify(personalInfo?.email ? `mailto:${personalInfo.email}` : '')},
+            "jobTitle": ${JSON.stringify(personalInfo?.title || personalInfo?.tagline || '')},
             "sameAs": [
-              "https://github.com/mark-john-ignacio",
-              "https://www.linkedin.com"
+              ${socialLinks.map(s => JSON.stringify(s.url)).join(',')}
             ],
-            "knowsAbout": ["Laravel", "React", "TypeScript", "Tailwind CSS", "AWS", "PHP"]
+            "knowsAbout": ${JSON.stringify(tech)}
           }
         `}</script>
       </Head>
@@ -69,17 +79,28 @@ function PortfolioPage() {
         {!reduceMotion && (
           <motion.div aria-hidden="true" style={{ scaleX }} className="fixed left-0 top-0 z-50 h-1 w-full origin-left bg-[#64ffda]" />
         )}
-        <SocialSidebar />
-        <EmailSidebar />
+        <SocialSidebar links={socialLinks} />
+        {personalInfo?.email && <EmailSidebar email={personalInfo.email} />}
         <Header />
   <main id="content" className="pt-20" role="main">
-          <HeroSection motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }} />
-          <AboutSection />
-          <ExperienceSection />
+          <HeroSection
+            motionVariants={{ container: adaptiveContainer, item: adaptiveFadeUp }}
+            greeting={personalInfo?.hero_greeting}
+            name={personalInfo?.name}
+            tagline={personalInfo?.hero_tagline || personalInfo?.tagline}
+            blurb={personalInfo?.bio_short}
+          />
+          <AboutSection
+            bioShort={personalInfo?.bio_short}
+            bioLong={personalInfo?.bio_long}
+            tech={(tech_items?.length ? tech_items.filter(t => t.featured).map(t => t.name) : tech) || []}
+            profileImage={personalInfo?.profile_image_url}
+          />
+          {experiences?.length > 0 && <ExperienceSection experiences={experiences} />}
           <Suspense fallback={<div className="px-6 py-24 md:px-24" aria-busy="true">Loading projects…</div>}>
-            <LazyProjects />
+             <LazyProjects projects={projects} />
           </Suspense>
-          <ContactSection />
+          <ContactSection email={personalInfo?.email} blurb={personalInfo?.contact_blurb} />
           <Footer />
         </main>
       </div>
@@ -87,6 +108,6 @@ function PortfolioPage() {
   );
 }
 
-const LazyProjects = lazy(() => import('../sections/ProjectsSection').then(m => ({ default: m.ProjectsSection })));
+const LazyProjects = lazy(() => import('../sections/ProjectsSection').then(m => ({ default: (p: any) => <m.ProjectsSection {...p} featured={p?.projects?.featured || []} secondary={p?.projects?.secondary || []} /> })));
 
 export default PortfolioPage;

@@ -41,3 +41,26 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+// Public portfolio page props
+export interface PublicPortfolioProps {
+    personalInfo: {
+        name?: string;
+        title?: string;
+        tagline?: string;
+        hero_greeting?: string;
+        hero_tagline?: string;
+        bio_short?: string;
+        bio_long?: string;
+        email?: string;
+        location?: string;
+        availability_status?: string;
+        resume_url?: string | null;
+        profile_image_url?: string | null;
+    };
+    socialLinks: { platform: string; label: string; url: string; icon?: string | null }[];
+    experiences: { company: string; role: string; period: string; bullets: string[]; url?: string | null }[];
+    projects: { featured: any[]; secondary: any[] };
+    meta: { description: string; canonical: string; og_image?: string | null };
+    tech: string[];
+}

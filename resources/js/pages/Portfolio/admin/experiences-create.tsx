@@ -11,33 +11,37 @@ import { FormEvent, useState } from 'react';
 
 type ExperienceForm = {
     company: string;
-    role: string;
+    position: string;
     location: string;
     start_date: string;
     end_date: string;
     is_current: boolean;
     description: string;
     achievements: string[];
-    skills: string[];
-    order_column: number;
+    technologies: string[];
+    company_url: string;
+    company_logo: string;
+    sort_order: number;
 };
 
 export default function ExperiencesCreate() {
     const { data, setData, post, processing, errors } = useForm<ExperienceForm>({
         company: '',
-        role: '',
+        position: '',
         location: '',
         start_date: '',
         end_date: '',
         is_current: false,
         description: '',
-        achievements: [] as string[],
-        skills: [] as string[],
-        order_column: 0
+        achievements: [],
+        technologies: [],
+        company_url: '',
+        company_logo: '',
+        sort_order: 0,
     });
 
     const [achievementInput, setAchievementInput] = useState('');
-    const [skillInput, setSkillInput] = useState('');
+    const [techInput, setTechInput] = useState('');
 
     function submit(e: FormEvent) {
         e.preventDefault();
@@ -49,10 +53,10 @@ export default function ExperiencesCreate() {
         setData('achievements', [...data.achievements, achievementInput.trim()]);
         setAchievementInput('');
     }
-    function addSkill() {
-        if (!skillInput.trim()) return;
-        setData('skills', [...data.skills, skillInput.trim()]);
-        setSkillInput('');
+    function addTechnology() {
+        if (!techInput.trim()) return;
+        setData('technologies', [...data.technologies, techInput.trim()]);
+        setTechInput('');
     }
 
     return (
@@ -71,9 +75,9 @@ export default function ExperiencesCreate() {
                             {errors.company && <p className="text-xs text-destructive">{errors.company}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="role">Role</Label>
-                            <Input id="role" value={data.role} onChange={e => setData('role', e.target.value)} />
-                            {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
+                            <Label htmlFor="position">Position</Label>
+                            <Input id="position" value={data.position} onChange={e => setData('position', e.target.value)} />
+                            {errors.position && <p className="text-xs text-destructive">{errors.position}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="location">Location</Label>
@@ -121,21 +125,38 @@ export default function ExperiencesCreate() {
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between gap-4">
-                                <Label>Skills</Label>
+                                <Label>Technologies</Label>
                                 <div className="flex gap-2">
-                                    <Input placeholder="Add skill" value={skillInput} onChange={e => setSkillInput(e.target.value)} className="h-8" />
-                                    <Button type="button" size="sm" variant="secondary" onClick={addSkill} disabled={!skillInput.trim()}>Add</Button>
+                                    <Input placeholder="Add technology" value={techInput} onChange={e => setTechInput(e.target.value)} className="h-8" />
+                                    <Button type="button" size="sm" variant="secondary" onClick={addTechnology} disabled={!techInput.trim()}>Add</Button>
                                 </div>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                                {data.skills.map((a, i) => (
+                                {data.technologies.map((t, i) => (
                                     <Badge key={i} variant="outline" className="flex items-center gap-1">
-                                        <span className="max-w-[150px] truncate" title={a}>{a}</span>
-                                        <button type="button" onClick={() => setData('skills', data.skills.filter((_, idx) => idx !== i))} className="text-[10px] leading-none">×</button>
+                                        <span className="max-w-[150px] truncate" title={t}>{t}</span>
+                                        <button type="button" onClick={() => setData('technologies', data.technologies.filter((_, idx) => idx !== i))} className="text-[10px] leading-none">×</button>
                                     </Badge>
                                 ))}
                             </div>
-                            {errors.skills && <p className="text-xs text-destructive">{errors.skills}</p>}
+                            {errors.technologies && <p className="text-xs text-destructive">{errors.technologies}</p>}
+                        </div>
+                    </div>
+                    <div className="grid gap-5 md:grid-cols-3">
+                        <div className="space-y-2">
+                            <Label htmlFor="company_url">Company URL</Label>
+                            <Input id="company_url" value={data.company_url} onChange={e => setData('company_url', e.target.value)} />
+                            {errors.company_url && <p className="text-xs text-destructive">{errors.company_url}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="company_logo">Company Logo</Label>
+                            <Input id="company_logo" value={data.company_logo} onChange={e => setData('company_logo', e.target.value)} placeholder="/images/logo.png or URL" />
+                            {errors.company_logo && <p className="text-xs text-destructive">{errors.company_logo}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="sort_order">Sort Order</Label>
+                            <Input id="sort_order" type="number" value={data.sort_order} onChange={e => setData('sort_order', Number(e.target.value))} />
+                            {errors.sort_order && <p className="text-xs text-destructive">{errors.sort_order}</p>}
                         </div>
                     </div>
                 </Card>

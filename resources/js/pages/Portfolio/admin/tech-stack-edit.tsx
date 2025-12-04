@@ -3,7 +3,6 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
@@ -13,11 +12,11 @@ type TechForm = {
     _method: 'PUT';
     name: string;
     category: string;
-    description: string;
     icon: string;
-    proficiency: number;
+    color: string;
+    proficiency_level: number; // 0-100
     is_featured: boolean;
-    order_column: number;
+    sort_order: number;
 };
 
 export default function TechStackEdit({ tech }: { tech: any }) {
@@ -25,11 +24,11 @@ export default function TechStackEdit({ tech }: { tech: any }) {
         _method: 'PUT',
         name: tech.name || '',
         category: tech.category || '',
-        description: tech.description || '',
         icon: tech.icon || '',
-        proficiency: tech.proficiency || 3,
-        is_featured: tech.is_featured || false,
-        order_column: tech.order_column || 0
+        color: tech.color || '',
+        proficiency_level: (tech.proficiency_level ?? tech.proficiency ?? 50),
+        is_featured: !!tech.is_featured,
+        sort_order: (tech.sort_order ?? tech.order_column ?? 0),
     });
 
     function submit(e: FormEvent) {
@@ -63,18 +62,25 @@ export default function TechStackEdit({ tech }: { tech: any }) {
                             {errors.icon && <p className="text-xs text-destructive">{errors.icon}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label>Proficiency</Label>
+                            <Label>Proficiency Level</Label>
                             <div className="space-y-2">
-                                <Slider min={1} max={5} step={1} value={[data.proficiency]} onValueChange={(vals: number[]) => setData('proficiency', vals[0])} />
-                                <p className="text-[10px] text-muted-foreground">{data.proficiency} / 5</p>
+                                <Slider min={0} max={100} step={1} value={[data.proficiency_level]} onValueChange={(vals: number[]) => setData('proficiency_level', vals[0])} />
+                                <p className="text-[10px] text-muted-foreground">{data.proficiency_level}%</p>
                             </div>
-                            {errors.proficiency && <p className="text-xs text-destructive">{errors.proficiency}</p>}
+                            {errors.proficiency_level && <p className="text-xs text-destructive">{errors.proficiency_level}</p>}
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" value={data.description} onChange={e => setData('description', e.target.value)} className="min-h-[140px]" />
-                        {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+                    <div className="grid grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                            <Label htmlFor="color">Color</Label>
+                            <Input id="color" type="color" value={data.color || '#000000'} onChange={e => setData('color', e.target.value)} className="h-9 p-1" />
+                            {errors.color && <p className="text-xs text-destructive">{errors.color}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="sort_order">Sort Order</Label>
+                            <Input id="sort_order" type="number" value={data.sort_order} onChange={e => setData('sort_order', Number(e.target.value))} />
+                            {errors.sort_order && <p className="text-xs text-destructive">{errors.sort_order}</p>}
+                        </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <Switch checked={data.is_featured} onCheckedChange={(v: boolean) => setData('is_featured', !!v)} id="featured" />
